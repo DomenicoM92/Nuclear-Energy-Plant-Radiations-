@@ -24,8 +24,11 @@
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction
+from qgis.PyQt.QtCore import QVariant
 
 # Initialize Qt resources from file resources.py
+from qgis._core import QgsPointXY, QgsVectorLayer, QgsField, QgsFeature, QgsGeometry, QgsProject
+
 from .resources import *
 # Import the code for the dialog
 from .energy_plant_radiation_module_dialog import energy_plant_radiation_classDialog
@@ -182,7 +185,28 @@ class energy_plant_radiation_class:
 
     def run(self):
         """Run method that performs all the real work"""
+        # create layer
+        vl = QgsVectorLayer("Energy_Plant", "temporary_points", "memory")
+        pr = vl.dataProvider()
 
+        # changes are only possible when editing the layer
+        vl.startEditing()
+        # add fields
+        pr.addAttributes(
+            [QgsField("name", QVariant.String), QgsField("age", QVariant.Int), QgsField("size", QVariant.Double)])
+
+        # add a feature
+        fet = QgsFeature()
+        from qgis._core import QgsPoint
+        fet.setGeometry(QgsGeometry.fromPointXY(QgsPointXY(10, 10)))
+        fet.setAttributes(["Johny", 2, 0.3])
+        pr.addFeatures([fet])
+        # commit to stop editing the layer
+        vl.commitChanges()
+
+        # update layer's extent when new features have been added
+        # because change of extent in provider is not propagated to the layer
+        vl.updateExtents()
         # Create the dialog with elements (after translation) and keep reference
         # Only create GUI ONCE in callback, so that it will only load when the plugin is started
         if self.first_start == True:
@@ -196,5 +220,9 @@ class energy_plant_radiation_class:
         # See if OK was pressed
         if result:
             # Do something useful here - delete the line containing pass and
-            # substitute with your code.
+
+            # add layer to the legend
+            QgsProject.instance().addMapLayer(vl,True)  # 3 correction
+            vl.reload()
+
             pass
