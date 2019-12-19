@@ -21,13 +21,14 @@
  *                                                                         *
  ***************************************************************************/
 """
+import qgis
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction
-from qgis.PyQt.QtCore import QVariant
-
+import csv
+import random
 # Initialize Qt resources from file resources.py
-from qgis._core import QgsPointXY, QgsVectorLayer, QgsField, QgsFeature, QgsGeometry, QgsProject
+from qgis._core import QgsPointXY, QgsVectorLayer, QgsField, QgsFeature, QgsGeometry, QgsProject, QgsPoint
 
 from .resources import *
 # Import the code for the dialog
@@ -185,28 +186,7 @@ class energy_plant_radiation_class:
 
     def run(self):
         """Run method that performs all the real work"""
-        # create layer
-        vl = QgsVectorLayer("Energy_Plant", "temporary_points", "memory")
-        pr = vl.dataProvider()
 
-        # changes are only possible when editing the layer
-        vl.startEditing()
-        # add fields
-        pr.addAttributes(
-            [QgsField("name", QVariant.String), QgsField("age", QVariant.Int), QgsField("size", QVariant.Double)])
-
-        # add a feature
-        fet = QgsFeature()
-        from qgis._core import QgsPoint
-        fet.setGeometry(QgsGeometry.fromPointXY(QgsPointXY(10, 10)))
-        fet.setAttributes(["Johny", 2, 0.3])
-        pr.addFeatures([fet])
-        # commit to stop editing the layer
-        vl.commitChanges()
-
-        # update layer's extent when new features have been added
-        # because change of extent in provider is not propagated to the layer
-        vl.updateExtents()
         # Create the dialog with elements (after translation) and keep reference
         # Only create GUI ONCE in callback, so that it will only load when the plugin is started
         if self.first_start == True:
@@ -219,10 +199,39 @@ class energy_plant_radiation_class:
         result = self.dlg.exec_()
         # See if OK was pressed
         if result:
-            # Do something useful here - delete the line containing pass and
-
-            # add layer to the legend
-            QgsProject.instance().addMapLayer(vl,True)  # 3 correction
-            vl.reload()
-
+            self.flush_table()
+            dirname = os.path.dirname(__file__)
+            filename = os.path.join(dirname, 'dataset/global_power_plant_database.csv')
+            with open(filename, 'r') as file:
+                reader = csv.reader(file)
+                for i, row in enumerate(reader):
+                    if i > 0 and row[7] == "Nuclear":
+                        layer = QgsProject.instance().mapLayersByName('Energy_Plant')[0]
+                        pr = layer.dataProvider()
+                        # insert in attribute table
+                        poly = QgsFeature(layer.fields())
+                        poly.setAttribute("Country", row[0])
+                        poly.setAttribute("count_long", row[1])
+                        poly.setAttribute("name", row[2])
+                        poly.setAttribute("qppd_idnr", row[3])
+                        poly.setAttribute("cap_mw", row[4])
+                        poly.setAttribute("latitude", row[5])
+                        poly.setAttribute("longitude", row[6])
+                        poly.setAttribute("Radiation", random.randint(1, 200))
+                        poly.setGeometry(QgsGeometry.fromPointXY(QgsPointXY(float(row[6]),float(row[5]))))
+                        pr.addFeatures([poly])
+                        layer.updateExtents()
+                        layer.commitChanges()
+                        layer.reload()
+            print("Insert Completed")
             pass
+
+    @staticmethod
+    def flush_table():
+        layer = qgis.utils.iface.activeLayer()
+        layer.startEditing()
+        for field in layer.dataProvider().attributeIndexes():
+            for feature in layer.getFeatures():
+                layer.changeAttributeValue(feature.id(), field, None)
+
+        layer.commitChanges()
