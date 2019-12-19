@@ -21,7 +21,10 @@
  *                                                                         *
  ***************************************************************************/
 """
+from threading import Thread
+
 import qgis
+import paho.mqtt.client as mqtt
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction
@@ -185,6 +188,7 @@ class energy_plant_radiation_class:
 
 
     def run(self):
+        self.init_state()
         """Run method that performs all the real work"""
 
         # Create the dialog with elements (after translation) and keep reference
@@ -193,38 +197,45 @@ class energy_plant_radiation_class:
             self.first_start = False
             self.dlg = energy_plant_radiation_classDialog()
 
+        self.dlg.pushButton.clicked.connect(self.run1)
         # show the dialog
         self.dlg.show()
         # Run the dialog event loop
         result = self.dlg.exec_()
         # See if OK was pressed
         if result:
-            self.flush_table()
-            dirname = os.path.dirname(__file__)
-            filename = os.path.join(dirname, 'dataset/global_power_plant_database.csv')
-            with open(filename, 'r') as file:
-                reader = csv.reader(file)
-                for i, row in enumerate(reader):
-                    if i > 0 and row[7] == "Nuclear":
-                        layer = QgsProject.instance().mapLayersByName('Energy_Plant')[0]
-                        pr = layer.dataProvider()
-                        # insert in attribute table
-                        poly = QgsFeature(layer.fields())
-                        poly.setAttribute("Country", row[0])
-                        poly.setAttribute("count_long", row[1])
-                        poly.setAttribute("name", row[2])
-                        poly.setAttribute("qppd_idnr", row[3])
-                        poly.setAttribute("cap_mw", row[4])
-                        poly.setAttribute("latitude", row[5])
-                        poly.setAttribute("longitude", row[6])
-                        poly.setAttribute("Radiation", random.randint(1, 200))
-                        poly.setGeometry(QgsGeometry.fromPointXY(QgsPointXY(float(row[6]),float(row[5]))))
-                        pr.addFeatures([poly])
-                        layer.updateExtents()
-                        layer.commitChanges()
-                        layer.reload()
-            print("Insert Completed")
+
             pass
+
+    def run1(self):
+        print("hello")
+        username = 'ubhhdpho'
+        password = '7OEwDqtTAfec'
+        server = 'tailor.cloudmqtt.com'
+        port = 13662
+        client = mqtt.Client()
+        client.on_connect = self.on_connect
+        client.on_message = self.on_message
+        client.on_subscribe = self.on_subscribe
+        client.username_pw_set(username, password)
+        client.connect(server, port)
+
+        client.subscribe("radiation - topic0", qos=0)
+
+        # Continue the network loop, exit when an error occurs
+        # rc = 0
+        # while rc == 0:
+        #     rc = client.loop()
+        # print("rc: " + str(rc))
+
+    def on_connect(client, userdata, flags, rc):
+        print("Connected With Result Code " + rc)
+
+    def on_message(client, userdata, message):
+        print("Message Recieved: " + message.payload.decode())
+
+    def on_subscribe(client, obj, mid, granted_qos):
+        client.subscribe("radiation - topic0", qos=0)
 
     @staticmethod
     def flush_table():
@@ -235,3 +246,30 @@ class energy_plant_radiation_class:
                 layer.changeAttributeValue(feature.id(), field, None)
 
         layer.commitChanges()
+
+    def init_state(self):
+        self.flush_table()
+        dirname = os.path.dirname(__file__)
+        filename = os.path.join(dirname, 'dataset/global_power_plant_database.csv')
+        with open(filename, 'r') as file:
+            reader = csv.reader(file)
+            for i, row in enumerate(reader):
+                if i > 0 and row[7] == "Nuclear":
+                    layer = QgsProject.instance().mapLayersByName('Energy_Plant')[0]
+                    pr = layer.dataProvider()
+                    # insert in attribute table
+                    poly = QgsFeature(layer.fields())
+                    poly.setAttribute("Country", row[0])
+                    poly.setAttribute("count_long", row[1])
+                    poly.setAttribute("name", row[2])
+                    poly.setAttribute("qppd_idnr", row[3])
+                    poly.setAttribute("cap_mw", row[4])
+                    poly.setAttribute("latitude", row[5])
+                    poly.setAttribute("longitude", row[6])
+                    poly.setAttribute("Radiation", random.randint(1, 200))
+                    poly.setGeometry(QgsGeometry.fromPointXY(QgsPointXY(float(row[6]), float(row[5]))))
+                    pr.addFeatures([poly])
+                    layer.updateExtents()
+                    layer.commitChanges()
+                    layer.reload()
+        print("Insert Completed")
