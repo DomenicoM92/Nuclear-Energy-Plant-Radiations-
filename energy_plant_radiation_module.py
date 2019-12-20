@@ -30,8 +30,13 @@ from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction
 import csv
 import random
+
+MESSAGE_CATEGORY = 'TaskFromFunction'
+
 # Initialize Qt resources from file resources.py
-from qgis._core import QgsPointXY, QgsVectorLayer, QgsField, QgsFeature, QgsGeometry, QgsProject, QgsPoint
+from qgis._core import QgsPointXY, QgsVectorLayer, QgsField, QgsFeature, QgsGeometry, QgsProject, QgsPoint, Qgis, \
+    QgsMessageLog, QgsTask, QgsApplication
+from qgis._gui import QgsMessageBar
 
 from .resources import *
 # Import the code for the dialog
@@ -89,18 +94,17 @@ class energy_plant_radiation_class:
         # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
         return QCoreApplication.translate('energy_plant_radiation_class', message)
 
-
     def add_action(
-        self,
-        icon_path,
-        text,
-        callback,
-        enabled_flag=True,
-        add_to_menu=True,
-        add_to_toolbar=True,
-        status_tip=None,
-        whats_this=None,
-        parent=None):
+            self,
+            icon_path,
+            text,
+            callback,
+            enabled_flag=True,
+            add_to_menu=True,
+            add_to_toolbar=True,
+            status_tip=None,
+            whats_this=None,
+            parent=None):
         """Add a toolbar icon to the toolbar.
 
         :param icon_path: Path to the icon for this action. Can be a resource
@@ -177,7 +181,6 @@ class energy_plant_radiation_class:
         # will be set False in run()
         self.first_start = True
 
-
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
         for action in self.actions:
@@ -185,7 +188,6 @@ class energy_plant_radiation_class:
                 self.tr(u'&energy_plant_radiation'),
                 action)
             self.iface.removeToolBarIcon(action)
-
 
     def run(self):
         self.init_state()
@@ -197,46 +199,49 @@ class energy_plant_radiation_class:
             self.first_start = False
             self.dlg = energy_plant_radiation_classDialog()
 
-        self.dlg.pushButton.clicked.connect(self.run1)
         # show the dialog
         self.dlg.show()
         # Run the dialog event loop
         result = self.dlg.exec_()
         # See if OK was pressed
+        self.task_create_and_execute()
         if result:
-
             pass
-
-    def run1(self):
+    #TO DO NOT WORK
+    def subscriber(task, self):
         print("hello")
-        username = 'ubhhdpho'
-        password = '7OEwDqtTAfec'
-        server = 'tailor.cloudmqtt.com'
-        port = 13662
-        client = mqtt.Client()
-        client.on_connect = self.on_connect
-        client.on_message = self.on_message
-        client.on_subscribe = self.on_subscribe
-        client.username_pw_set(username, password)
-        client.connect(server, port)
-
-        client.subscribe("radiation - topic0", qos=0)
-
-        # Continue the network loop, exit when an error occurs
+        # QgsMessageLog.logMessage('Started task {}'.format(task.description()),
+        #                          MESSAGE_CATEGORY, Qgis.Info)
+        # username = 'ubhhdpho'
+        # password = '7OEwDqtTAfec'
+        # server = 'tailor.cloudmqtt.com'
+        # port = 13662
+        # client = mqtt.Client()
+        # client.on_connect = self.on_connect
+        # client.on_message = self.on_message
+        # client.on_subscribe = self.on_subscribe
+        # client.username_pw_set(username, password)
+        # client.connect(server, port)
+        #
+        # client.subscribe("radiation - topic0", qos=0)
+        #
+        # # Continue the network loop, exit when an error occurs
         # rc = 0
         # while rc == 0:
         #     rc = client.loop()
         # print("rc: " + str(rc))
-
-    def on_connect(client, userdata, flags, rc):
+    #FUnction for subscriber
+    @staticmethod
+    def on_connect(userdata, flags, rc):
         print("Connected With Result Code " + rc)
-
-    def on_message(client, userdata, message):
+    #FUnction for subscriber
+    @staticmethod
+    def on_message(userdata, message):
         print("Message Recieved: " + message.payload.decode())
-
+    #FUnction for subscriber
     def on_subscribe(client, obj, mid, granted_qos):
         client.subscribe("radiation - topic0", qos=0)
-
+    #FLush attribute table
     @staticmethod
     def flush_table():
         layer = qgis.utils.iface.activeLayer()
@@ -246,7 +251,7 @@ class energy_plant_radiation_class:
                 layer.changeAttributeValue(feature.id(), field, None)
 
         layer.commitChanges()
-
+    #read from dataset and finally fill attribute table
     def init_state(self):
         self.flush_table()
         dirname = os.path.dirname(__file__)
@@ -272,4 +277,9 @@ class energy_plant_radiation_class:
                     layer.updateExtents()
                     layer.commitChanges()
                     layer.reload()
-        print("Insert Completed")
+        widget = self.iface.messageBar().createMessage("Insertion Energy Plants", "Done")
+        self.iface.messageBar().pushWidget(widget, Qgis.Info)
+    #function for start Task (like Thread )
+    def task_create_and_execute(self):
+        task1 = QgsTask.fromFunction(u'Waste cpu 1', self.subscriber, wait_time=4)
+        #QgsApplication.taskManager().addTask(task1)
