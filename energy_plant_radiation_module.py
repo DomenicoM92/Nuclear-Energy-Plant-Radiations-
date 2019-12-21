@@ -24,7 +24,6 @@
 from threading import Thread
 
 import qgis
-import paho.mqtt.client as mqtt
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction
@@ -36,9 +35,7 @@ MESSAGE_CATEGORY = 'TaskFromFunction'
 # Initialize Qt resources from file resources.py
 from qgis._core import QgsPointXY, QgsVectorLayer, QgsField, QgsFeature, QgsGeometry, QgsProject, QgsPoint, Qgis, \
     QgsMessageLog, QgsTask, QgsApplication
-from qgis._gui import QgsMessageBar
 
-from .resources import *
 # Import the code for the dialog
 from .energy_plant_radiation_module_dialog import energy_plant_radiation_classDialog
 import os.path
@@ -204,43 +201,13 @@ class energy_plant_radiation_class:
         # Run the dialog event loop
         result = self.dlg.exec_()
         # See if OK was pressed
-        self.task_create_and_execute()
         if result:
+            task = globals()['task1'] = QgsTask.fromFunction(u'Waste cpu 1', self.run_subscriber)
+            task.hold()
+            QgsApplication.taskManager().addTask(globals()['task1'])
+
             pass
-    #TO DO NOT WORK
-    def subscriber(task, self):
-        print("hello")
-        # QgsMessageLog.logMessage('Started task {}'.format(task.description()),
-        #                          MESSAGE_CATEGORY, Qgis.Info)
-        # username = 'ubhhdpho'
-        # password = '7OEwDqtTAfec'
-        # server = 'tailor.cloudmqtt.com'
-        # port = 13662
-        # client = mqtt.Client()
-        # client.on_connect = self.on_connect
-        # client.on_message = self.on_message
-        # client.on_subscribe = self.on_subscribe
-        # client.username_pw_set(username, password)
-        # client.connect(server, port)
-        #
-        # client.subscribe("radiation - topic0", qos=0)
-        #
-        # # Continue the network loop, exit when an error occurs
-        # rc = 0
-        # while rc == 0:
-        #     rc = client.loop()
-        # print("rc: " + str(rc))
-    #FUnction for subscriber
-    @staticmethod
-    def on_connect(userdata, flags, rc):
-        print("Connected With Result Code " + rc)
-    #FUnction for subscriber
-    @staticmethod
-    def on_message(userdata, message):
-        print("Message Recieved: " + message.payload.decode())
-    #FUnction for subscriber
-    def on_subscribe(client, obj, mid, granted_qos):
-        client.subscribe("radiation - topic0", qos=0)
+
     #FLush attribute table
     @staticmethod
     def flush_table():
@@ -279,7 +246,10 @@ class energy_plant_radiation_class:
                     layer.reload()
         widget = self.iface.messageBar().createMessage("Insertion Energy Plants", "Done")
         self.iface.messageBar().pushWidget(widget, Qgis.Info)
-    #function for start Task (like Thread )
-    def task_create_and_execute(self):
-        task1 = QgsTask.fromFunction(u'Waste cpu 1', self.subscriber, wait_time=4)
-        #QgsApplication.taskManager().addTask(task1)
+    #run thread subscriber TO DO
+    @staticmethod
+    def run_subscriber(self,task):
+        print("hello")
+
+
+
