@@ -1,5 +1,1 @@
-<RCC>
-    <qresource prefix="/plugins/energy_plant_radiation_module" >
-        <file>icon.png</file>
-    </qresource>
-</RCC>
+<RCC/>
