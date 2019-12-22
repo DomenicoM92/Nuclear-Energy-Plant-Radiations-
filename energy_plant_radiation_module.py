@@ -21,7 +21,6 @@
  *                                                                         *
  ***************************************************************************/
 """
-from threading import Thread
 
 import qgis
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication
@@ -29,21 +28,18 @@ from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction
 import csv
 import random
-
-MESSAGE_CATEGORY = 'TaskFromFunction'
-
-# Initialize Qt resources from file resources.py
+from .mqttSubscriber import mqttSubscriber
+from .mqttPublisher import mqttPublisher
 from qgis._core import QgsPointXY, QgsVectorLayer, QgsField, QgsFeature, QgsGeometry, QgsProject, QgsPoint, Qgis, \
     QgsMessageLog, QgsTask, QgsApplication
-
-# Import the code for the dialog
 from .energy_plant_radiation_module_dialog import energy_plant_radiation_classDialog
 import os.path
-
-
+#global declaration of thread pub and sub
+task1 = mqttPublisher()
+task2 = mqttSubscriber()
 class energy_plant_radiation_class:
-    """QGIS Plugin Implementation."""
 
+    """QGIS Plugin Implementation."""
     def __init__(self, iface):
         """Constructor.
 
@@ -189,26 +185,25 @@ class energy_plant_radiation_class:
     def run(self):
         self.init_state()
         """Run method that performs all the real work"""
-
         # Create the dialog with elements (after translation) and keep reference
         # Only create GUI ONCE in callback, so that it will only load when the plugin is started
         if self.first_start == True:
             self.first_start = False
             self.dlg = energy_plant_radiation_classDialog()
+            self.dlg.start_radiation.clicked.connect(self.run_pub_sub)
+            self.dlg.stop_radiation.clicked.connect(self.stopTask)
 
         # show the dialog
         self.dlg.show()
         # Run the dialog event loop
         result = self.dlg.exec_()
+
         # See if OK was pressed
         if result:
-            task = globals()['task1'] = QgsTask.fromFunction(u'Waste cpu 1', self.run_subscriber)
-            task.hold()
-            QgsApplication.taskManager().addTask(globals()['task1'])
 
             pass
 
-    #FLush attribute table
+    #Flush attribute table
     @staticmethod
     def flush_table():
         layer = qgis.utils.iface.activeLayer()
@@ -218,6 +213,7 @@ class energy_plant_radiation_class:
                 layer.changeAttributeValue(feature.id(), field, None)
 
         layer.commitChanges()
+
     #read from dataset and finally fill attribute table
     def init_state(self):
         self.flush_table()
@@ -246,10 +242,25 @@ class energy_plant_radiation_class:
                     layer.reload()
         widget = self.iface.messageBar().createMessage("Insertion Energy Plants", "Done")
         self.iface.messageBar().pushWidget(widget, Qgis.Info)
-    #run thread subscriber TO DO
+
+    #run thread subscriber and publisher
     @staticmethod
-    def run_subscriber(self,task):
-        print("hello")
+    def run_pub_sub(self):
+        # create task for pub and Pub
+        if QgsApplication.taskManager().countActiveTasks() < 2:
+            QgsApplication.taskManager().addTask(task1)
+            QgsApplication.taskManager().addTask(task2)
+            print("Pub and Sub started")
+        else:
+            print("already running")
 
-
+    #stop thread subscriber and publisher
+    def stopTask(self):
+        if QgsApplication.taskManager().countActiveTasks() > 1:
+            print(QgsApplication.taskManager().countActiveTasks())
+            task1.stopPub(0)
+            task2.stopSub(1)
+            print("Radiation stream stopped")
+        else:
+            print("Radiation streaming not running")
 

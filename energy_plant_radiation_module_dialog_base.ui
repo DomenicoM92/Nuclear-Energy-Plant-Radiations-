@@ -29,17 +29,30 @@
     <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton">
+  <widget class="QPushButton" name="start_radiation">
    <property name="geometry">
     <rect>
      <x>20</x>
      <y>80</y>
-     <width>80</width>
+     <width>151</width>
      <height>25</height>
     </rect>
    </property>
    <property name="text">
-    <string>subscriber</string>
+    <string>Start Radiation Stream</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="stop_radiation">
+   <property name="geometry">
+    <rect>
+     <x>190</x>
+     <y>80</y>
+     <width>151</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Stop Radiation Stream</string>
    </property>
   </widget>
  </widget>
