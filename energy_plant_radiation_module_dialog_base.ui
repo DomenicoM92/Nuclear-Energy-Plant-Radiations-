@@ -26,14 +26,14 @@
     <enum>Qt::Horizontal</enum>
    </property>
    <property name="standardButtons">
-    <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+    <set>QDialogButtonBox::Ok</set>
    </property>
   </widget>
   <widget class="QPushButton" name="start_radiation">
    <property name="geometry">
     <rect>
-     <x>20</x>
-     <y>80</y>
+     <x>10</x>
+     <y>20</y>
      <width>151</width>
      <height>25</height>
     </rect>
@@ -45,8 +45,8 @@
   <widget class="QPushButton" name="stop_radiation">
    <property name="geometry">
     <rect>
-     <x>190</x>
-     <y>80</y>
+     <x>10</x>
+     <y>60</y>
      <width>151</width>
      <height>25</height>
     </rect>

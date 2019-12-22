@@ -4,6 +4,7 @@ import random
 
 from qgis._core import QgsTask
 
+
 class mqttPublisher(QgsTask):
     activator = 1
 
@@ -25,11 +26,18 @@ class mqttPublisher(QgsTask):
         client.connect(server, port)
 
         while self.activator:
-            time.sleep(5)
-            randomRadiation = random.randint(1,200)
-            client.publish(topic="radiation - topic0", payload=str(randomRadiation), qos=0, retain=False)
+
+            messagge = ""
+            i = 1
+            while i < 200:
+                messagge += str(random.randint(1, 200)) + str(',')
+                if i == 199:
+                    messagge += str(random.randint(1, 200))
+                i += 1
+            client.publish(topic="radiation - topic0", payload=messagge, qos=0, retain=False)
+            time.sleep(8)
+
         print("End Publisher")
 
-
-    def stopPub(self,act):
+    def stopPub(self, act):
         self.activator = act

@@ -34,10 +34,11 @@ from qgis._core import QgsPointXY, QgsVectorLayer, QgsField, QgsFeature, QgsGeom
     QgsMessageLog, QgsTask, QgsApplication
 from .energy_plant_radiation_module_dialog import energy_plant_radiation_classDialog
 import os.path
+import threading
 NUMB_ENERGY_PLANT = 199
 #global declaration of thread pub and sub
-task1 = mqttPublisher()
-task2 = mqttSubscriber()
+publisher = mqttPublisher()
+subscriber = mqttSubscriber()
 class energy_plant_radiation_class:
 
     """QGIS Plugin Implementation."""
@@ -185,6 +186,7 @@ class energy_plant_radiation_class:
 
     def run(self):
         self.init_state()
+
         """Run method that performs all the real work"""
         # Create the dialog with elements (after translation) and keep reference
         # Only create GUI ONCE in callback, so that it will only load when the plugin is started
@@ -194,6 +196,14 @@ class energy_plant_radiation_class:
             self.dlg.start_radiation.clicked.connect(self.run_pub_sub)
             self.dlg.stop_radiation.clicked.connect(self.stopTask)
 
+        #MARIO FUnction. TO DO: Insert code for create heatmap with values from mqtt subscriber
+        # (subscriber.getRadiationList() return a list that contain 199 values one for all energy plants in the map)
+        #the function updateRadiation is triggerend each ten second
+        def updteRadiation():
+            a = threading.Timer(10.0, updteRadiation).start()
+            print(subscriber.getRadiationList())
+            a.cancel()
+        updteRadiation()
         # show the dialog
         self.dlg.show()
         # Run the dialog event loop
@@ -202,6 +212,7 @@ class energy_plant_radiation_class:
         # See if OK was pressed
         if result:
 
+            print("End Plugin Energy Plant")
             pass
 
     #read from dataset and finally fill attribute table
@@ -239,8 +250,8 @@ class energy_plant_radiation_class:
     def run_pub_sub(self):
         # create task for pub and Pub
         if QgsApplication.taskManager().countActiveTasks() < 2:
-            QgsApplication.taskManager().addTask(task1)
-            QgsApplication.taskManager().addTask(task2)
+            QgsApplication.taskManager().addTask(publisher)
+            QgsApplication.taskManager().addTask(subscriber)
             print("Pub and Sub started")
         else:
             print("already running")
@@ -249,9 +260,8 @@ class energy_plant_radiation_class:
     def stopTask(self):
         if QgsApplication.taskManager().countActiveTasks() > 1:
             print(QgsApplication.taskManager().countActiveTasks())
-            task1.stopPub(0)
-            task2.stopSub(1)
+            publisher.stopPub(0)
+            subscriber.stopSub(1)
             print("Radiation stream stopped")
         else:
             print("Radiation streaming not running")
-
