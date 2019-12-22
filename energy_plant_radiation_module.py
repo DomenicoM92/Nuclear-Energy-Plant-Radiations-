@@ -40,7 +40,7 @@ NUMB_ENERGY_PLANT = 199
 publisher = mqttPublisher()
 subscriber = mqttSubscriber()
 class energy_plant_radiation_class:
-
+    upddateRadiation = None
     """QGIS Plugin Implementation."""
     def __init__(self, iface):
         """Constructor.
@@ -200,9 +200,9 @@ class energy_plant_radiation_class:
         # (subscriber.getRadiationList() return a list that contain 199 values one for all energy plants in the map)
         #the function updateRadiation is triggerend each ten second
         def updteRadiation():
-            a = threading.Timer(10.0, updteRadiation).start()
+            energy_plant_radiation_class.upddateRadiation  = threading.Timer(10.0, updteRadiation)
             print(subscriber.getRadiationList())
-            a.cancel()
+            energy_plant_radiation_class.upddateRadiation.start()
         updteRadiation()
         # show the dialog
         self.dlg.show()
@@ -211,7 +211,8 @@ class energy_plant_radiation_class:
 
         # See if OK was pressed
         if result:
-
+            energy_plant_radiation_class.upddateRadiation.cancel()
+            self.stopTask()
             print("End Plugin Energy Plant")
             pass
 
