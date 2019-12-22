@@ -34,6 +34,7 @@ from qgis._core import QgsPointXY, QgsVectorLayer, QgsField, QgsFeature, QgsGeom
     QgsMessageLog, QgsTask, QgsApplication
 from .energy_plant_radiation_module_dialog import energy_plant_radiation_classDialog
 import os.path
+NUMB_ENERGY_PLANT = 199
 #global declaration of thread pub and sub
 task1 = mqttPublisher()
 task2 = mqttSubscriber()
@@ -203,43 +204,33 @@ class energy_plant_radiation_class:
 
             pass
 
-    #Flush attribute table
-    @staticmethod
-    def flush_table():
-        layer = qgis.utils.iface.activeLayer()
-        layer.startEditing()
-        for field in layer.dataProvider().attributeIndexes():
-            for feature in layer.getFeatures():
-                layer.changeAttributeValue(feature.id(), field, None)
-
-        layer.commitChanges()
-
     #read from dataset and finally fill attribute table
     def init_state(self):
-        self.flush_table()
-        dirname = os.path.dirname(__file__)
-        filename = os.path.join(dirname, 'dataset/global_power_plant_database.csv')
-        with open(filename, 'r') as file:
-            reader = csv.reader(file)
-            for i, row in enumerate(reader):
-                if i > 0 and row[7] == "Nuclear":
-                    layer = QgsProject.instance().mapLayersByName('Energy_Plant')[0]
-                    pr = layer.dataProvider()
-                    # insert in attribute table
-                    poly = QgsFeature(layer.fields())
-                    poly.setAttribute("Country", row[0])
-                    poly.setAttribute("count_long", row[1])
-                    poly.setAttribute("name", row[2])
-                    poly.setAttribute("qppd_idnr", row[3])
-                    poly.setAttribute("cap_mw", row[4])
-                    poly.setAttribute("latitude", row[5])
-                    poly.setAttribute("longitude", row[6])
-                    poly.setAttribute("Radiation", random.randint(1, 200))
-                    poly.setGeometry(QgsGeometry.fromPointXY(QgsPointXY(float(row[6]), float(row[5]))))
-                    pr.addFeatures([poly])
-                    layer.updateExtents()
-                    layer.commitChanges()
-                    layer.reload()
+        layer = QgsProject.instance().mapLayersByName('Energy_Plant')[0]
+        print("feature count "+str(layer.featureCount()))
+        if layer.featureCount() < NUMB_ENERGY_PLANT:
+            dirname = os.path.dirname(__file__)
+            filename = os.path.join(dirname, 'dataset/global_power_plant_database.csv')
+            with open(filename, 'r') as file:
+                reader = csv.reader(file)
+                for i, row in enumerate(reader):
+                    if i > 0 and row[7] == "Nuclear":
+                        pr = layer.dataProvider()
+                        # insert in attribute table
+                        poly = QgsFeature(layer.fields())
+                        poly.setAttribute("Country", row[0])
+                        poly.setAttribute("count_long", row[1])
+                        poly.setAttribute("name", row[2])
+                        poly.setAttribute("qppd_idnr", row[3])
+                        poly.setAttribute("cap_mw", row[4])
+                        poly.setAttribute("latitude", row[5])
+                        poly.setAttribute("longitude", row[6])
+                        poly.setAttribute("Radiation", random.randint(1, 200))
+                        poly.setGeometry(QgsGeometry.fromPointXY(QgsPointXY(float(row[6]), float(row[5]))))
+                        pr.addFeatures([poly])
+                        layer.updateExtents()
+                        layer.commitChanges()
+                        layer.reload()
         widget = self.iface.messageBar().createMessage("Insertion Energy Plants", "Done")
         self.iface.messageBar().pushWidget(widget, Qgis.Info)
 
