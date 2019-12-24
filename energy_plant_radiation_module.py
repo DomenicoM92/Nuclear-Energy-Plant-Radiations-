@@ -35,13 +35,18 @@ from qgis._core import QgsPointXY, QgsVectorLayer, QgsField, QgsFeature, QgsGeom
 from .energy_plant_radiation_module_dialog import energy_plant_radiation_classDialog
 import os.path
 import threading
+
 NUMB_ENERGY_PLANT = 199
-#global declaration of thread pub and sub
+# global declaration of thread pub and sub
 publisher = mqttPublisher()
 subscriber = mqttSubscriber()
+
+
 class energy_plant_radiation_class:
     upddateRadiation = None
+    radiationRate = 1
     """QGIS Plugin Implementation."""
+
     def __init__(self, iface):
         """Constructor.
 
@@ -195,14 +200,18 @@ class energy_plant_radiation_class:
             self.dlg = energy_plant_radiation_classDialog()
             self.dlg.start_radiation.clicked.connect(self.run_pub_sub)
             self.dlg.stop_radiation.clicked.connect(self.stopTask)
+            self.dlg.sb.valueChanged.connect(self.setTimeRate)
 
-        #MARIO FUnction. TO DO: Insert code for create heatmap with values from mqtt subscriber
+        # MARIO FUnction. TO DO: Insert code for create heatmap with values from mqtt subscriber
         # (subscriber.getRadiationList() return a list that contain 199 values one for all energy plants in the map)
-        #the function updateRadiation is triggerend each ten second
+        # the function updateRadiation is triggerend each ten second
+
         def updteRadiation():
-            energy_plant_radiation_class.upddateRadiation  = threading.Timer(10.0, updteRadiation)
+            energy_plant_radiation_class.upddateRadiation = threading.Timer(energy_plant_radiation_class.radiationRate,
+                                                                            updteRadiation)
             print(subscriber.getRadiationList())
             energy_plant_radiation_class.upddateRadiation.start()
+
         updteRadiation()
         # show the dialog
         self.dlg.show()
@@ -216,10 +225,10 @@ class energy_plant_radiation_class:
             print("End Plugin Energy Plant")
             pass
 
-    #read from dataset and finally fill attribute table
+    # read from dataset and finally fill attribute table
     def init_state(self):
         layer = QgsProject.instance().mapLayersByName('Energy_Plant')[0]
-        print("feature count "+str(layer.featureCount()))
+        print("feature count " + str(layer.featureCount()))
         if layer.featureCount() < NUMB_ENERGY_PLANT:
             dirname = os.path.dirname(__file__)
             filename = os.path.join(dirname, 'dataset/global_power_plant_database.csv')
@@ -246,7 +255,7 @@ class energy_plant_radiation_class:
         widget = self.iface.messageBar().createMessage("Insertion Energy Plants", "Done")
         self.iface.messageBar().pushWidget(widget, Qgis.Info)
 
-    #run thread subscriber and publisher
+    # run thread subscriber and publisher
     @staticmethod
     def run_pub_sub(self):
         # create task for pub and Pub
@@ -257,7 +266,7 @@ class energy_plant_radiation_class:
         else:
             print("already running")
 
-    #stop thread subscriber and publisher
+    # stop thread subscriber and publisher
     def stopTask(self):
         if QgsApplication.taskManager().countActiveTasks() > 1:
             print(QgsApplication.taskManager().countActiveTasks())
@@ -266,3 +275,9 @@ class energy_plant_radiation_class:
             print("Radiation stream stopped")
         else:
             print("Radiation streaming not running")
+
+    def setTimeRate(self, newTime):
+        print(newTime)
+        energy_plant_radiation_class.radiationRate = newTime
+        publisher.setTimeRatePub(newTime)
+        print(energy_plant_radiation_class.radiationRate)
