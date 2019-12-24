@@ -255,7 +255,6 @@ class energy_plant_radiation_class:
         self.iface.messageBar().pushWidget(widget, Qgis.Info)
 
     # run thread subscriber and publisher
-    @staticmethod
     def run_pub_sub(self):
         print(energy_plant_radiation_class.publisher)
         # create task for pub and Pub
@@ -263,8 +262,12 @@ class energy_plant_radiation_class:
             QgsApplication.taskManager().addTask(energy_plant_radiation_class.publisher)
             QgsApplication.taskManager().addTask(energy_plant_radiation_class.subscriber)
             print("Pub and Sub started")
+            widget = self.iface.messageBar().createMessage("Pub and Sub started:", "Started")
+            self.iface.messageBar().pushWidget(widget, Qgis.Info)
         else:
             print("already running")
+            widget = self.iface.messageBar().createMessage("Radiation streaming:", "Already running")
+            self.iface.messageBar().pushWidget(widget, Qgis.Info)
 
     # stop thread subscriber and publisher
     def stopTask(self):
@@ -272,15 +275,18 @@ class energy_plant_radiation_class:
             print(QgsApplication.taskManager().countActiveTasks())
             energy_plant_radiation_class.publisher.stopPub(0)
             energy_plant_radiation_class.subscriber.stopSub(1)
-            energy_plant_radiation_class.publisher = mqttPublisher()
-            energy_plant_radiation_class.subscriber = mqttSubscriber()
+            #energy_plant_radiation_class.publisher = mqttPublisher()
+            #energy_plant_radiation_class.subscriber = mqttSubscriber()
             print("Radiation stream stopped")
         else:
             print("Radiation streaming not running")
-
+            widget = self.iface.messageBar().createMessage("Radiation streaming:", "Not running")
+            self.iface.messageBar().pushWidget(widget, Qgis.Info)
 
     def setTimeRate(self, newTime):
         print(newTime)
         energy_plant_radiation_class.radiationRate = newTime
         energy_plant_radiation_class.publisher.setTimeRatePub(newTime)
         print(energy_plant_radiation_class.radiationRate)
+        widget = self.iface.messageBar().createMessage("Changed time rate to:", str(newTime))
+        self.iface.messageBar().pushWidget(widget, Qgis.Info)
