@@ -170,8 +170,8 @@ class energy_plant_radiation_class:
 
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
-
-        icon_path = ':/plugins/energy_plant_radiation_module/icon.png'
+        dirname = os.path.dirname(__file__)
+        icon_path = os.path.join(dirname, 'icon.png')
         self.add_action(
             icon_path,
             text=self.tr(u'Energy Plant Radiation'),
