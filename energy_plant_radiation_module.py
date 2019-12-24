@@ -38,11 +38,10 @@ import threading
 
 NUMB_ENERGY_PLANT = 199
 # global declaration of thread pub and sub
-publisher = mqttPublisher()
-subscriber = mqttSubscriber()
-
 
 class energy_plant_radiation_class:
+    publisher = mqttPublisher()
+    subscriber = mqttSubscriber()
     upddateRadiation = None
     radiationRate = 1
     """QGIS Plugin Implementation."""
@@ -209,7 +208,7 @@ class energy_plant_radiation_class:
         def updteRadiation():
             energy_plant_radiation_class.upddateRadiation = threading.Timer(energy_plant_radiation_class.radiationRate,
                                                                             updteRadiation)
-            print(subscriber.getRadiationList())
+            print(energy_plant_radiation_class.subscriber.getRadiationList())
             energy_plant_radiation_class.upddateRadiation.start()
 
         updteRadiation()
@@ -258,10 +257,11 @@ class energy_plant_radiation_class:
     # run thread subscriber and publisher
     @staticmethod
     def run_pub_sub(self):
+        print(energy_plant_radiation_class.publisher)
         # create task for pub and Pub
         if QgsApplication.taskManager().countActiveTasks() < 2:
-            QgsApplication.taskManager().addTask(publisher)
-            QgsApplication.taskManager().addTask(subscriber)
+            QgsApplication.taskManager().addTask(energy_plant_radiation_class.publisher)
+            QgsApplication.taskManager().addTask(energy_plant_radiation_class.subscriber)
             print("Pub and Sub started")
         else:
             print("already running")
@@ -270,14 +270,17 @@ class energy_plant_radiation_class:
     def stopTask(self):
         if QgsApplication.taskManager().countActiveTasks() > 1:
             print(QgsApplication.taskManager().countActiveTasks())
-            publisher.stopPub(0)
-            subscriber.stopSub(1)
+            energy_plant_radiation_class.publisher.stopPub(0)
+            energy_plant_radiation_class.subscriber.stopSub(1)
+            energy_plant_radiation_class.publisher = mqttPublisher()
+            energy_plant_radiation_class.subscriber = mqttSubscriber()
             print("Radiation stream stopped")
         else:
             print("Radiation streaming not running")
 
+
     def setTimeRate(self, newTime):
         print(newTime)
         energy_plant_radiation_class.radiationRate = newTime
-        publisher.setTimeRatePub(newTime)
+        energy_plant_radiation_class.publisher.setTimeRatePub(newTime)
         print(energy_plant_radiation_class.radiationRate)
