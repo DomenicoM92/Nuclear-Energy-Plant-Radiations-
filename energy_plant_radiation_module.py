@@ -222,6 +222,7 @@ class energy_plant_radiation_class:
         if result:
             energy_plant_radiation_class.upddateRadiation.cancel()
             self.stopTask()
+            self.unloadProject()
             print("End Plugin Energy Plant")
             pass
 
@@ -263,12 +264,8 @@ class energy_plant_radiation_class:
             QgsApplication.taskManager().addTask(energy_plant_radiation_class.publisher)
             QgsApplication.taskManager().addTask(energy_plant_radiation_class.subscriber)
             print("Pub and Sub started")
-            widget = self.iface.messageBar().createMessage("Pub and Sub started:", "Started")
-            self.iface.messageBar().pushWidget(widget, Qgis.Info)
         else:
             print("already running")
-            widget = self.iface.messageBar().createMessage("Radiation streaming:", "Already running")
-            self.iface.messageBar().pushWidget(widget, Qgis.Info)
 
     # stop thread subscriber and publisher
     def stopTask(self):
@@ -282,8 +279,6 @@ class energy_plant_radiation_class:
             print("Radiation stream stopped")
         else:
             print("Radiation streaming not running")
-            widget = self.iface.messageBar().createMessage("Radiation streaming:", "Not running")
-            self.iface.messageBar().pushWidget(widget, Qgis.Info)
 
     def setTimeRate(self, newTime):
         print(newTime)
@@ -302,3 +297,6 @@ class energy_plant_radiation_class:
         self.iface.addVectorLayer(energy_plant, "Energy_Plant", "ogr")
 
         print("Project Loaded")
+
+    def unloadProject(self):
+        QgsProject.instance().removeAllMapLayers()
