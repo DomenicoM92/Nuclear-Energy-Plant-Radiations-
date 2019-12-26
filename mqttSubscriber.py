@@ -46,3 +46,5 @@ class mqttSubscriber(QgsTask):
     def getRadiationList(self):
         return mqttSubscriber.radiation
 
+    def flushRadiationList(self):
+        mqttSubscriber.radiation = []

@@ -22,7 +22,7 @@
  ***************************************************************************/
 """
 
-import qgis
+from PyQt5.QtCore import QFileInfo
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction
@@ -189,6 +189,7 @@ class energy_plant_radiation_class:
             self.iface.removeToolBarIcon(action)
 
     def run(self):
+        self.loadProject()
         self.init_state()
 
         """Run method that performs all the real work"""
@@ -226,10 +227,10 @@ class energy_plant_radiation_class:
 
     # read from dataset and finally fill attribute table
     def init_state(self):
+        dirname = os.path.dirname(__file__)
         layer = QgsProject.instance().mapLayersByName('Energy_Plant')[0]
         print("feature count " + str(layer.featureCount()))
         if layer.featureCount() < NUMB_ENERGY_PLANT:
-            dirname = os.path.dirname(__file__)
             filename = os.path.join(dirname, 'dataset/global_power_plant_database.csv')
             with open(filename, 'r') as file:
                 reader = csv.reader(file)
@@ -272,6 +273,7 @@ class energy_plant_radiation_class:
             print(QgsApplication.taskManager().countActiveTasks())
             energy_plant_radiation_class.publisher.stopPub(0)
             energy_plant_radiation_class.subscriber.stopSub(1)
+            energy_plant_radiation_class.subscriber.flushRadiationList()
             energy_plant_radiation_class.publisher = mqttPublisher()
             energy_plant_radiation_class.subscriber = mqttSubscriber()
             print("Radiation stream stopped")
@@ -284,3 +286,15 @@ class energy_plant_radiation_class:
         energy_plant_radiation_class.radiationRate = newTime
         energy_plant_radiation_class.publisher.setTimeRatePub(newTime)
         print(energy_plant_radiation_class.radiationRate)
+
+    def loadProject(self):
+        # Get the project instance
+        project = QgsProject.instance()
+        # Load another project
+        dirname = os.path.dirname(__file__)
+        map = os.path.join(dirname, 'Qgis_Project/Map.qgs')
+        energy_plant = os.path.join(dirname, 'Qgis_Project/Energy_Plant.shp')
+        project.read(map)
+        self.iface.addVectorLayer(energy_plant, "Energy_Plant", "ogr")
+
+        print("Project Loaded")
