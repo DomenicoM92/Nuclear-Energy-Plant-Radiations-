@@ -276,14 +276,9 @@ class energy_plant_radiation_class:
             print(QgsApplication.taskManager().countActiveTasks())
             energy_plant_radiation_class.publisher.stopPub(0)
             energy_plant_radiation_class.subscriber.stopSub(1)
-<<<<<<< HEAD
             energy_plant_radiation_class.subscriber.flushRadiationList()
             energy_plant_radiation_class.publisher = mqttPublisher()
             energy_plant_radiation_class.subscriber = mqttSubscriber()
-=======
-            #energy_plant_radiation_class.publisher = mqttPublisher()
-            #energy_plant_radiation_class.subscriber = mqttSubscriber()
->>>>>>> 4d701def08d97221f0afd9b2dd69a23d02352fb3
             print("Radiation stream stopped")
         else:
             print("Radiation streaming not running")
@@ -295,7 +290,6 @@ class energy_plant_radiation_class:
         energy_plant_radiation_class.radiationRate = newTime
         energy_plant_radiation_class.publisher.setTimeRatePub(newTime)
         print(energy_plant_radiation_class.radiationRate)
-<<<<<<< HEAD
 
     def loadProject(self):
         # Get the project instance
@@ -308,7 +302,3 @@ class energy_plant_radiation_class:
         self.iface.addVectorLayer(energy_plant, "Energy_Plant", "ogr")
 
         print("Project Loaded")
-=======
-        widget = self.iface.messageBar().createMessage("Changed time rate to:", str(newTime))
-        self.iface.messageBar().pushWidget(widget, Qgis.Info)
->>>>>>> 4d701def08d97221f0afd9b2dd69a23d02352fb3
