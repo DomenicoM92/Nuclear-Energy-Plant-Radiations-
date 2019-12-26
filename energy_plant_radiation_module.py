@@ -22,7 +22,6 @@
  ***************************************************************************/
 """
 
-from PyQt5.QtCore import QFileInfo
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction
@@ -30,8 +29,7 @@ import csv
 import random
 from .mqttSubscriber import mqttSubscriber
 from .mqttPublisher import mqttPublisher
-from qgis._core import QgsPointXY, QgsVectorLayer, QgsField, QgsFeature, QgsGeometry, QgsProject, QgsPoint, Qgis, \
-    QgsMessageLog, QgsTask, QgsApplication
+from qgis._core import QgsPointXY, QgsFeature, QgsGeometry, QgsProject, Qgis, QgsApplication
 from .energy_plant_radiation_module_dialog import energy_plant_radiation_classDialog
 import os.path
 import threading
