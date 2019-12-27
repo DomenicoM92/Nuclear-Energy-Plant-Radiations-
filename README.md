@@ -1,4 +1,4 @@
-# Energy Plant Radiation Plugin
+# Nuclear Energy Plant Radiation Plugin
 
 This project was developed on the course of the Geographic Information System (GIS) of the master's degree program in data science at the University of Salerno. The goal of this project was develop a python plugin for the software Quantum GIS (QGIS) in order to visualize on the open street map all nuclear energy plant in the world. This plugin use the mqtt protocol for receive of radiation data from sensors in order to dinamically visualize it on the map. In order to clarify the visualization of the radiation data, a heat map was created and used.
 
