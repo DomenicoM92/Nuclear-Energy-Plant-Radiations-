@@ -12,7 +12,6 @@ email=domenicomarino42@gmail.com, mario.ruggiero1995@gmail.com
 
 about=This project was developed on the course of the Geographic Information System (GIS) of the master's degree program in data science at the University of Salerno.
 
-tracker=http://bugs
 repository=https://github.com/DomenicoM92/energy_plant_radiation_module.git
 # End of mandatory metadata
 
