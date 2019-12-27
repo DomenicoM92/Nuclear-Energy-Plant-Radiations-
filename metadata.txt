@@ -3,7 +3,7 @@
 # This file should be included when you package your plugin.# Mandatory items:
 
 [general]
-name=energy_plant_radiation
+name=Nuclear Energy Plants'Radiations 
 qgisMinimumVersion=3.0
 description=The goal of this project was develop a python plugin for the software Quantum GIS (QGIS) in order to visualize on the open street map all nuclear energy plant in the world. This plugin use the mqtt protocol for receive of radiation data from sensors in order to dinamically visualize it on the map. In order to clarify the visualization of the radiation data, a heat map was created and used.
 version=0.1
