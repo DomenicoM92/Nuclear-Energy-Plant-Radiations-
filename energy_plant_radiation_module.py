@@ -202,12 +202,12 @@ class energy_plant_radiation_class:
 
         # MARIO FUnction. TO DO: Insert code for create heatmap with values from mqtt subscriber
         # (subscriber.getRadiationList() return a list that contain 199 values one for all energy plants in the map)
-        # the function updateRadiation is triggerend each ten second
+        # the function updateRadiation is triggered each x seconds (depends on radiation rate)
 
         def updteRadiation():
             energy_plant_radiation_class.upddateRadiation = threading.Timer(energy_plant_radiation_class.radiationRate,
-                                                                            updteRadiation)
-            print(energy_plant_radiation_class.subscriber.getRadiationList())
+                                                                                        updteRadiation)
+            print("Energy Plant Radiation from sensors: "+ "\n" +str(energy_plant_radiation_class.subscriber.getRadiationList()))
             energy_plant_radiation_class.upddateRadiation.start()
 
         updteRadiation()
@@ -256,7 +256,6 @@ class energy_plant_radiation_class:
 
     # run thread subscriber and publisher
     def run_pub_sub(self):
-        print(energy_plant_radiation_class.publisher)
         # create task for pub and Pub
         if QgsApplication.taskManager().countActiveTasks() < 2:
             QgsApplication.taskManager().addTask(energy_plant_radiation_class.publisher)

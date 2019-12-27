@@ -8,7 +8,7 @@ def on_connect(client, userdata, flags, rc):
 
 def on_message(client, userdata, message):
     result = message.payload.decode()
-    result = result.split(' ')
+    result = result.split(',')
     mqttSubscriber.radiation = result
 
 def on_subscribe(client, obj, mid, granted_qos):
@@ -21,7 +21,6 @@ class mqttSubscriber(QgsTask):
         QgsTask.__init__(self)
 
     def run(self):
-        print("I'm Subscriber")
         username = 'ubhhdpho'
         password = '7OEwDqtTAfec'
         server = 'tailor.cloudmqtt.com'
