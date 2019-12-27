@@ -16,7 +16,7 @@ import unittest
 
 from qgis.PyQt.QtGui import QDialogButtonBox, QDialog
 
-from energy_plant_radiation_module_dialog import energy_plant_radiation_classDialog
+from nuclear_energy_plant_radiation_module_dialog import energy_plant_radiation_classDialog
 
 from utilities import get_qgis_app
 QGIS_APP = get_qgis_app()

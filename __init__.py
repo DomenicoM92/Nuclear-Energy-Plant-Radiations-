@@ -32,5 +32,5 @@ def classFactory(iface):  # pylint: disable=invalid-name
     :type iface: QgsInterface
     """
     #
-    from .energy_plant_radiation_module import energy_plant_radiation_class
+    from .nuclear_energy_plant_radiation_module import energy_plant_radiation_class
     return energy_plant_radiation_class(iface)

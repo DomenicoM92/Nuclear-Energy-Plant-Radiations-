@@ -29,7 +29,7 @@ from qgis.PyQt import QtWidgets
 
 # This loads your .ui file so that PyQt can populate your plugin with the elements from Qt Designer
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
-    os.path.dirname(__file__), 'energy_plant_radiation_module_dialog_base.ui'))
+    os.path.dirname(__file__), 'nuclear_energy_plant_radiation_module_dialog_base.ui'))
 
 
 class energy_plant_radiation_classDialog(QtWidgets.QDialog, FORM_CLASS):
