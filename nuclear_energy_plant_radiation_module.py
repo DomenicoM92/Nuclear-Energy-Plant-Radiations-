@@ -9,6 +9,7 @@ from qgis._core import QgsPointXY, QgsFeature, QgsGeometry, QgsProject, Qgis, Qg
 from .nuclear_energy_plant_radiation_module_dialog import energy_plant_radiation_classDialog
 import os.path
 import threading
+from shutil import copyfile
 
 NUMB_ENERGY_PLANT = 199
 
@@ -203,7 +204,7 @@ class energy_plant_radiation_class:
     # read from dataset and finally fill attribute table
     def init_state(self):
         dirname = os.path.dirname(__file__)
-        layer = QgsProject.instance().mapLayersByName('Energy_Plant')[0]
+        layer = QgsProject.instance().mapLayersByName('copy_energy_plant')[0]
         print("feature count " + str(layer.featureCount()))
         if layer.featureCount() < NUMB_ENERGY_PLANT:
             filename = os.path.join(dirname, 'dataset/global_power_plant_database.csv')
@@ -264,10 +265,19 @@ class energy_plant_radiation_class:
         project = QgsProject.instance()
         # Load another project
         dirname = os.path.dirname(__file__)
-        map = os.path.join(dirname, 'qgis_project/Map.qgs')
-        energy_plant = os.path.join(dirname, 'qgis_project/Energy_Plant.shp')
-        project.read(map)
-        self.iface.addVectorLayer(energy_plant, "Energy_Plant", "ogr")
+
+        #copy all qgis_project folder file in temp_file for not modify it
+        copyfile(os.path.join(dirname, 'qgis_project/Map.qgs'), os.path.join(dirname, 'qgis_project/temp_file/TempMap.qgs'))
+        copyfile(os.path.join(dirname, 'qgis_project/Energy_Plant.shp'), os.path.join(dirname, 'qgis_project/temp_file/copy_energy_plant.shp'))
+        copyfile(os.path.join(dirname, 'qgis_project/Energy_Plant.dbf'), os.path.join(dirname, 'qgis_project/temp_file/copy_energy_plant.dbf'))
+        copyfile(os.path.join(dirname, 'qgis_project/Energy_Plant.prj'), os.path.join(dirname, 'qgis_project/temp_file/copy_energy_plant.prj'))
+        copyfile(os.path.join(dirname, 'qgis_project/Energy_Plant.qpj'), os.path.join(dirname, 'qgis_project/temp_file/copy_energy_plant.qpj'))
+        copyfile(os.path.join(dirname, 'qgis_project/Energy_Plant.shx'), os.path.join(dirname, 'qgis_project/temp_file/copy_energy_plant.shx'))
+
+        copy_map = os.path.join(dirname, 'qgis_project/temp_file/TempMap.qgs')
+        copy_energy_plant = os.path.join(dirname, 'qgis_project/temp_file/copy_energy_plant.shp')
+        project.read(copy_map)
+        self.iface.addVectorLayer(copy_energy_plant, "", "ogr")
 
         print("Project Loaded")
 
