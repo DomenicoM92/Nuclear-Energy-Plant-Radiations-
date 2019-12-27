@@ -12,6 +12,7 @@ import threading
 
 NUMB_ENERGY_PLANT = 199
 
+
 class energy_plant_radiation_class:
     publisher = mqttPublisher()
     subscriber = mqttSubscriber()
@@ -181,8 +182,9 @@ class energy_plant_radiation_class:
 
         def updteRadiation():
             energy_plant_radiation_class.upddateRadiation = threading.Timer(energy_plant_radiation_class.radiationRate,
-                                                                                        updteRadiation)
-            print("Nuclear Energy Plant' Radiation from sensors: "+ "\n" +str(energy_plant_radiation_class.subscriber.getRadiationList()))
+                                                                            updteRadiation)
+            print("Nuclear Energy Plant' Radiation from sensors: " + "\n" + str(
+                energy_plant_radiation_class.subscriber.getRadiationList()))
             energy_plant_radiation_class.upddateRadiation.start()
 
         updteRadiation()

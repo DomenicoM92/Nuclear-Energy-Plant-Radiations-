@@ -6,17 +6,21 @@ from qgis._core import QgsTask
 def on_connect(client, userdata, flags, rc):
     print("Connected With Result Code " + rc)
 
+
 def on_message(client, userdata, message):
     result = message.payload.decode()
     result = result.split(',')
     mqttSubscriber.radiation = result
 
+
 def on_subscribe(client, obj, mid, granted_qos):
     client.subscribe("radiation - topic0", qos=0)
+
 
 class mqttSubscriber(QgsTask):
     rc = 0
     radiation = list()
+
     def __init__(self):
         QgsTask.__init__(self)
 
@@ -39,7 +43,7 @@ class mqttSubscriber(QgsTask):
             rc = client.loop()
         print("End Subscriber")
 
-    def stopSub(self,stop):
+    def stopSub(self, stop):
         self.rc = stop
 
     def getRadiationList(self):
