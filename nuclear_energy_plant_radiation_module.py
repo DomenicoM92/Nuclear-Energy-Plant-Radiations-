@@ -264,8 +264,8 @@ class energy_plant_radiation_class:
         project = QgsProject.instance()
         # Load another project
         dirname = os.path.dirname(__file__)
-        map = os.path.join(dirname, 'Qgis_Project/Map.qgs')
-        energy_plant = os.path.join(dirname, 'Qgis_Project/Energy_Plant.shp')
+        map = os.path.join(dirname, 'qgis_project/Map.qgs')
+        energy_plant = os.path.join(dirname, 'qgis_project/Energy_Plant.shp')
         project.read(map)
         self.iface.addVectorLayer(energy_plant, "Energy_Plant", "ogr")
 
