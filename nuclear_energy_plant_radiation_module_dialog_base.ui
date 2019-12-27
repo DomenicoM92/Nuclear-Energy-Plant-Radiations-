@@ -26,15 +26,15 @@
     <enum>Qt::Horizontal</enum>
    </property>
    <property name="standardButtons">
-    <set>QDialogButtonBox::Ok</set>
+    <set>QDialogButtonBox::Close</set>
    </property>
   </widget>
   <widget class="QPushButton" name="start_radiation">
    <property name="geometry">
     <rect>
-     <x>10</x>
-     <y>20</y>
-     <width>151</width>
+     <x>40</x>
+     <y>30</y>
+     <width>71</width>
      <height>25</height>
     </rect>
    </property>
@@ -42,29 +42,29 @@
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>Start Radiation Stream</string>
+    <string>Start</string>
    </property>
   </widget>
   <widget class="QPushButton" name="stop_radiation">
    <property name="geometry">
     <rect>
-     <x>10</x>
-     <y>60</y>
-     <width>151</width>
+     <x>40</x>
+     <y>70</y>
+     <width>71</width>
      <height>25</height>
     </rect>
    </property>
    <property name="text">
-    <string>Stop Radiation Stream</string>
+    <string>Stop</string>
    </property>
   </widget>
   <widget class="QTextBrowser" name="textBrowser">
    <property name="geometry">
     <rect>
-     <x>170</x>
+     <x>160</x>
      <y>20</y>
-     <width>201</width>
-     <height>91</height>
+     <width>211</width>
+     <height>71</height>
     </rect>
    </property>
    <property name="html">
@@ -72,7 +72,7 @@
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Noto Sans'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:22pt; font-weight:600; font-style:italic; text-decoration: underline;&quot;&gt;Energy Plant Plugin&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:14pt; font-weight:600; font-style:italic; text-decoration: underline;&quot;&gt;Nuclear Energy Plant' Radiation&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
   </widget>
   <widget class="QSpinBox" name="sb">
@@ -102,6 +102,26 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text">
     <string>Time rate (Seconds)</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_2">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>141</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>11</pointsize>
+     <weight>75</weight>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="text">
+    <string>Radiation Stream:</string>
    </property>
   </widget>
  </widget>

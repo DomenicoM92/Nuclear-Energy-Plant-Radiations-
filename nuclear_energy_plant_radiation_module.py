@@ -192,9 +192,8 @@ class energy_plant_radiation_class:
         self.dlg.show()
         # Run the dialog event loop
         result = self.dlg.exec_()
-
-        # See if OK was pressed
-        if result:
+        # See if Close was pressed
+        if result == 0:
             energy_plant_radiation_class.upddateRadiation.cancel()
             self.stopTask()
             self.unloadProject()
