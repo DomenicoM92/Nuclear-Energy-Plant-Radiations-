@@ -147,7 +147,7 @@ class energy_plant_radiation_class:
         icon_path = os.path.join(dirname, 'icon.png')
         self.add_action(
             icon_path,
-            text=self.tr(u'Energy Plant Radiation'),
+            text=self.tr(u'Nuclear Energy Plants\' Radiations'),
             callback=self.run,
             parent=self.iface.mainWindow())
 
