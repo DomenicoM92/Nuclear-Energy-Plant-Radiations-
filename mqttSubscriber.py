@@ -10,7 +10,7 @@ def on_connect(client, userdata, flags, rc):
 def on_message(client, userdata, message):
     result = message.payload.decode()
     result = result.split(',')
-    mqttSubscriber.radiation = result
+    mqttSubscriber.radiation = list(map(float,result))
 
 
 def on_subscribe(client, obj, mid, granted_qos):
