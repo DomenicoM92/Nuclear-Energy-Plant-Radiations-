@@ -198,7 +198,7 @@ class energy_plant_radiation_class:
             energy_plant_radiation_class.upddateRadiation.cancel()
             self.stopTask()
             self.unloadProject()
-            print("End Plugin Energy Plant")
+            print("End Nuclear Energy Plant Plugin")
             pass
 
     # read from dataset and finally fill attribute table
@@ -283,3 +283,18 @@ class energy_plant_radiation_class:
 
     def unloadProject(self):
         QgsProject.instance().removeAllMapLayers()
+        try:
+            dirname = os.path.dirname(__file__)
+            os.remove(os.path.join(dirname, 'qgis_project/temp_file/TempMap.qgs'))
+            os.remove(os.path.join(dirname, 'qgis_project/temp_file/copy_energy_plant.shp'))
+            os.remove(os.path.join(dirname, 'qgis_project/temp_file/copy_energy_plant.dbf'))
+            os.remove(os.path.join(dirname, 'qgis_project/temp_file/copy_energy_plant.prj'))
+            os.remove(os.path.join(dirname, 'qgis_project/temp_file/copy_energy_plant.qpj'))
+            os.remove(os.path.join(dirname, 'qgis_project/temp_file/copy_energy_plant.shx'))
+            os.remove(os.path.join(dirname, 'qgis_project/temp_file/TempMap.qgs~'))
+        except OSError:
+            pass
+
+        self.iface.mapCanvas().refreshAllLayers()
+
+

@@ -1,0 +1,3 @@
+Temp folder is a folder for handle copy of Map layer and energy_plant layer in order to avoid to compromize the original layers.
+After each plugin execution the temp files will be deleted. Therefore, this file allows to upload the Temp folder on GitHub
+(On GitHub empty folders aren't loadable).
