@@ -184,8 +184,12 @@ class energy_plant_radiation_class:
         def updteRadiation():
             energy_plant_radiation_class.upddateRadiation = threading.Timer(energy_plant_radiation_class.radiationRate,
                                                                             updteRadiation)
-            print("Nuclear Energy Plant' Radiation from sensors: " + "\n" + str(
-                energy_plant_radiation_class.subscriber.getRadiationList()))
+            if energy_plant_radiation_class.subscriber.isEmpty():
+                print("Radiation Stream is stopped!")
+            else:
+                print("Nuclear Energy Plant' Radiation from sensors: " + "\n" + str(
+                    energy_plant_radiation_class.subscriber.getRadiationList()))
+
             energy_plant_radiation_class.upddateRadiation.start()
 
         updteRadiation()

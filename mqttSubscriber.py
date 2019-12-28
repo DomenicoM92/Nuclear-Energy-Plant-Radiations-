@@ -51,3 +51,8 @@ class mqttSubscriber(QgsTask):
 
     def flushRadiationList(self):
         mqttSubscriber.radiation = []
+
+    def isEmpty(self):
+        if len(mqttSubscriber.radiation) == 0:
+            return True
+        return False
