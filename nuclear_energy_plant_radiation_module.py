@@ -303,6 +303,16 @@ class energy_plant_radiation_class:
         renderer.setRenderQuality(1)
         renderer.setWeightExpression("Radiation")
 
+        myStyle = QgsStyleV2()
+        ## get a list of default color ramps [u'Blues', u'BrBG', u'BuGn'....]
+        defaultColorRampNames = myStyle.colorRampNames()
+        ## setting ramp to Blues, first index of defaultColorRampNames
+        ramp = myStyle.colorRamp(defaultColorRampNames[0])
+        # set up an empty categorized renderer and assign the color ramp
+        renderer = QgsCategorizedSymbolRendererV2(field, [])
+        renderer.setSourceColorRamp(ramp)
+        vl.setRendererV2(renderer)
+
         layer.setRenderer(renderer)
         layer.renderer()
 
