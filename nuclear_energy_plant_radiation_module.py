@@ -198,11 +198,11 @@ class energy_plant_radiation_class:
                     layer.changeAttributeValue(feat.id(), 5, radiations[index])
                     index= index + 1
                 layer.commitChanges()
-                layer.reload()
 
             energy_plant_radiation_class.upddateRadiation.start()
-
         updteRadiation()
+        layer = QgsProject.instance().mapLayersByName('radiation_heatmap copy_energy_plant')[0]
+        layer.reload()
         # show the dialog
         self.dlg.show()
         # Run the dialog event loop
