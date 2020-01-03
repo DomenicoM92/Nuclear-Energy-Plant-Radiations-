@@ -11,7 +11,7 @@ from .nuclear_energy_plant_radiation_module_dialog import energy_plant_radiation
 import os.path
 import threading
 from shutil import copyfile
-
+from gi.repository import GObject
 NUMB_ENERGY_PLANT = 199
 
 
@@ -184,7 +184,7 @@ class energy_plant_radiation_class:
 
         def updteRadiation():
             energy_plant_radiation_class.upddateRadiation = threading.Timer(energy_plant_radiation_class.radiationRate,
-                                                                            updteRadiation)
+                                                                            schedule_update)
             if energy_plant_radiation_class.subscriber.isEmpty():
                 print("Radiation Stream is stopped!")
             else:
@@ -200,6 +200,10 @@ class energy_plant_radiation_class:
                 layer.commitChanges()
 
             energy_plant_radiation_class.upddateRadiation.start()
+
+        def schedule_update():
+            GObject.idle_add(updteRadiation)
+
         updteRadiation()
         layer = QgsProject.instance().mapLayersByName('radiation_heatmap copy_energy_plant')[0]
         layer.reload()
@@ -222,6 +226,7 @@ class energy_plant_radiation_class:
         print("feature count " + str(layer.featureCount()))
         if layer.featureCount() < NUMB_ENERGY_PLANT:
             filename = os.path.join(dirname, 'dataset/global_power_plant_database.csv')
+            layer.startEditing()
             with open(filename, 'r') as file:
                 reader = csv.reader(file)
                 for i, row in enumerate(reader):
@@ -239,9 +244,9 @@ class energy_plant_radiation_class:
                         poly.setAttribute("Radiation", random.randint(1, 200))
                         poly.setGeometry(QgsGeometry.fromPointXY(QgsPointXY(float(row[6]), float(row[5]))))
                         pr.addFeatures([poly])
-                        layer.updateExtents()
-                        layer.commitChanges()
-                        layer.reload()
+                layer.updateExtents()
+                layer.commitChanges()
+                layer.reload()
         widget = self.iface.messageBar().createMessage("Insertion Energy Plants", "Done")
         self.iface.messageBar().pushWidget(widget, Qgis.Info)
 
