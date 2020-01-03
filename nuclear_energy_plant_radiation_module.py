@@ -5,7 +5,8 @@ import csv
 import random
 from .mqttSubscriber import mqttSubscriber
 from .mqttPublisher import mqttPublisher
-from qgis._core import QgsPointXY, QgsFeature, QgsGeometry, QgsProject, Qgis, QgsApplication
+from qgis._core import QgsPointXY, QgsFeature, QgsGeometry, QgsProject, Qgis, QgsApplication, QgsHeatmapRenderer, \
+    QgsGradientColorRamp, QgsRasterLayer, QgsVectorLayer
 from .nuclear_energy_plant_radiation_module_dialog import energy_plant_radiation_classDialog
 import os.path
 import threading
@@ -187,8 +188,17 @@ class energy_plant_radiation_class:
             if energy_plant_radiation_class.subscriber.isEmpty():
                 print("Radiation Stream is stopped!")
             else:
-                print("Nuclear Energy Plant' Radiation from sensors: " + "\n" + str(
-                    energy_plant_radiation_class.subscriber.getRadiationList()))
+                #Retrieve heatmap
+                layer = QgsProject.instance().mapLayersByName('radiation_heatmap copy_energy_plant')[0]
+                radiations= energy_plant_radiation_class.subscriber.getRadiationList()
+                layer.startEditing()
+                index=0
+                it = layer.getFeatures()
+                for feat in it:
+                    layer.changeAttributeValue(feat.id(), 5, radiations[index])
+                    index= index + 1
+                layer.commitChanges()
+                layer.reload()
 
             energy_plant_radiation_class.upddateRadiation.start()
 
@@ -281,7 +291,20 @@ class energy_plant_radiation_class:
         copy_map = os.path.join(dirname, 'qgis_project/temp_file/TempMap.qgs')
         copy_energy_plant = os.path.join(dirname, 'qgis_project/temp_file/copy_energy_plant.shp')
         project.read(copy_map)
+
+        heatmap_layer_path = os.path.join(dirname, 'qgis_project/temp_file/copy_energy_plant.shp')
+
+        self.iface.addVectorLayer(heatmap_layer_path, "radiation_heatmap", "ogr")
         self.iface.addVectorLayer(copy_energy_plant, "", "ogr")
+
+        layer = QgsProject.instance().mapLayersByName('radiation_heatmap copy_energy_plant')[0]
+
+        renderer = QgsHeatmapRenderer()
+        renderer.setRenderQuality(1)
+        renderer.setWeightExpression("Radiation")
+
+        layer.setRenderer(renderer)
+        layer.renderer()
 
         print("Project Loaded")
 
