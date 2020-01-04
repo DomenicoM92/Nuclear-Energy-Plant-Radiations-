@@ -6,14 +6,13 @@ import random
 from .mqttSubscriber import mqttSubscriber
 from .mqttPublisher import mqttPublisher
 from qgis._core import QgsPointXY, QgsFeature, QgsGeometry, QgsProject, Qgis, QgsApplication, QgsHeatmapRenderer, \
-    QgsGradientColorRamp, QgsRasterLayer, QgsVectorLayer
+    QgsStyle
 from .nuclear_energy_plant_radiation_module_dialog import energy_plant_radiation_classDialog
 import os.path
 import threading
 from shutil import copyfile
 from gi.repository import GObject
 NUMB_ENERGY_PLANT = 199
-
 
 class energy_plant_radiation_class:
     publisher = mqttPublisher()
@@ -303,23 +302,20 @@ class energy_plant_radiation_class:
         self.iface.addVectorLayer(copy_energy_plant, "", "ogr")
 
         layer = QgsProject.instance().mapLayersByName('radiation_heatmap copy_energy_plant')[0]
+        layer.setOpacity(0.5)
 
         renderer = QgsHeatmapRenderer()
         renderer.setRenderQuality(1)
+        renderer.setRadius(15)
         renderer.setWeightExpression("Radiation")
 
-        myStyle = QgsStyleV2()
-        ## get a list of default color ramps [u'Blues', u'BrBG', u'BuGn'....]
-        defaultColorRampNames = myStyle.colorRampNames()
-        ## setting ramp to Blues, first index of defaultColorRampNames
-        ramp = myStyle.colorRamp(defaultColorRampNames[0])
-        # set up an empty categorized renderer and assign the color ramp
-        renderer = QgsCategorizedSymbolRendererV2(field, [])
-        renderer.setSourceColorRamp(ramp)
-        vl.setRendererV2(renderer)
+        style = QgsStyle.defaultStyle()
+        defaultColorRampNames = style.colorRampNames()
 
+        ramp = style.colorRamp(defaultColorRampNames[8])
+        ramp.setColor1()
+        renderer.setColorRamp(ramp)
         layer.setRenderer(renderer)
-        layer.renderer()
 
         print("Project Loaded")
 
