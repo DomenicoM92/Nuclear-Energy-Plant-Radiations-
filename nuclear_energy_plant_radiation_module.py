@@ -218,6 +218,7 @@ class energy_plant_radiation_class:
             energy_plant_radiation_class.upddateRadiation.cancel()
             self.stopTask()
             self.unloadProject()
+            self.iface.messageBar().clearWidgets()
             print("End Nuclear Energy Plant Plugin")
             pass
 
@@ -248,8 +249,8 @@ class energy_plant_radiation_class:
                 layer.updateExtents()
                 layer.commitChanges()
                 layer.reload()
-        widget = self.iface.messageBar().createMessage("Insertion Energy Plants", "Done")
-        self.iface.messageBar().pushWidget(widget, Qgis.Info)
+        #widget = self.iface.messageBar().createMessage("Insertion Energy Plants", "Done")
+        #self.iface.messageBar().pushWidget(widget, Qgis.Success)
 
     # run thread subscriber and publisher
     def run_pub_sub(self):
@@ -259,8 +260,11 @@ class energy_plant_radiation_class:
                 QgsApplication.taskManager().addTask(energy_plant_radiation_class.publisher)
                 QgsApplication.taskManager().addTask(energy_plant_radiation_class.subscriber)
                 print("Pub and Sub started")
+                energy_plant_radiation_class.popupMessage(self,"Radiation Stream:","Is started","success")
             else:
                 print("already running")
+                energy_plant_radiation_class.popupMessage(self,"Radiation Stream:","Already running","warning")
+
         else:
             print("Your device must be connected to a network")
     # stop thread subscriber and publisher
@@ -272,14 +276,18 @@ class energy_plant_radiation_class:
             energy_plant_radiation_class.publisher = mqttPublisher()
             energy_plant_radiation_class.subscriber = mqttSubscriber()
             print("Radiation stream stopped")
+            energy_plant_radiation_class.popupMessage(self, "Radiation Stream:", "Is stopped", "success")
+
         else:
             print("Radiation streaming not running")
+            energy_plant_radiation_class.popupMessage(self, "Radiation Stream:", "Is already stopped", "warning")
 
     def setTimeRate(self, newTime):
         print(newTime)
         energy_plant_radiation_class.radiationRate = newTime
         energy_plant_radiation_class.publisher.setTimeRatePub(newTime)
         print(energy_plant_radiation_class.radiationRate)
+        energy_plant_radiation_class.popupMessage(self, "New time rate:", str(newTime), "info")
 
     def loadProject(self):
         # Get the project instance
@@ -333,6 +341,7 @@ class energy_plant_radiation_class:
             progress.setValue(i + 1)
 
         self.iface.messageBar().clearWidgets()
+        energy_plant_radiation_class.popupMessage(self, "Project setup:", "Completed with success", "success")
         print("Project Loaded")
     def unloadProject(self):
         QgsProject.instance().removeAllMapLayers()
@@ -354,8 +363,25 @@ class energy_plant_radiation_class:
         try:
             urllib.request.urlopen("http://google.com")
             print("Network connection is running")
+            energy_plant_radiation_class.popupMessage(self, "Network connection:", "Is Running", "success")
+
             return True
         except urllib.error.URLError as err:
             print("Network connection is not running")
+            energy_plant_radiation_class.popupMessage(self, "Network connection:", "Is not Running", "critical")
+
             return False
 
+    def popupMessage(self,title, body, level):
+        if level == "info":
+            self.iface.messageBar().pushMessage(title, body, level=Qgis.Info,
+                                       duration=3)
+        elif level == "warning":
+            self.iface.messageBar().pushMessage(title, body, level=Qgis.Warning,
+                                                duration=3)
+        elif level == "critical":
+            self.iface.messageBar().pushMessage(title, body, level=Qgis.Critical,
+                                                duration=3)
+        elif level == "success":
+            self.iface.messageBar().pushMessage(title, body, level=Qgis.Success,
+                                                duration=3)
