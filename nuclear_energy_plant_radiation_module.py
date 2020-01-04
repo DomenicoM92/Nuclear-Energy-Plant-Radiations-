@@ -13,7 +13,9 @@ import threading
 from shutil import copyfile
 from gi.repository import GObject
 import urllib.request
-
+import time
+from qgis.PyQt.QtWidgets import QProgressBar
+from qgis.PyQt.QtCore import *
 NUMB_ENERGY_PLANT = 199
 
 class energy_plant_radiation_class:
@@ -168,7 +170,6 @@ class energy_plant_radiation_class:
     def run(self):
         self.loadProject()
         self.init_state()
-
         """Run method that performs all the real work"""
         # Create the dialog with elements (after translation) and keep reference
         # Only create GUI ONCE in callback, so that it will only load when the plugin is started
@@ -206,6 +207,8 @@ class energy_plant_radiation_class:
         updteRadiation()
         layer = QgsProject.instance().mapLayersByName('radiation_heatmap copy_energy_plant')[0]
         layer.reload()
+        self.progressBar()
+
         # show the dialog
         self.dlg.show()
         # Run the dialog event loop
@@ -317,8 +320,20 @@ class energy_plant_radiation_class:
         renderer.setColorRamp(ramp)
         layer.setRenderer(renderer)
 
-        print("Project Loaded")
+    def progressBar(self):
+        progressMessageBar = self.iface.messageBar().createMessage("Project setup...")
+        progress = QProgressBar()
+        progress.setMaximum(5)
+        progress.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        progressMessageBar.layout().addWidget(progress)
+        self.iface.messageBar().pushWidget(progressMessageBar, Qgis.Info)
 
+        for i in range(5):
+            time.sleep(1)
+            progress.setValue(i + 1)
+
+        self.iface.messageBar().clearWidgets()
+        print("Project Loaded")
     def unloadProject(self):
         QgsProject.instance().removeAllMapLayers()
         try:
