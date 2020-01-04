@@ -313,7 +313,7 @@ class energy_plant_radiation_class:
         defaultColorRampNames = style.colorRampNames()
 
         ramp = style.colorRamp(defaultColorRampNames[8])
-        ramp.setColor1()
+
         renderer.setColorRamp(ramp)
         layer.setRenderer(renderer)
 
