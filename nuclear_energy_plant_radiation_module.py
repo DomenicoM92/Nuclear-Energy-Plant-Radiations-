@@ -322,7 +322,6 @@ class energy_plant_radiation_class:
         defaultColorRampNames = style.colorRampNames()
 
         ramp = style.colorRamp(defaultColorRampNames[8])
-        print(ramp.properties())
         ramp.setColor1(QColor(0,0,4,0))
         renderer.setColorRamp(ramp)
         layer.setRenderer(renderer)
