@@ -177,7 +177,6 @@ class energy_plant_radiation_class:
             self.first_start = False
             self.dlg = energy_plant_radiation_classDialog()
             self.dlg.start_radiation.clicked.connect(self.run_pub_sub)
-            self.dlg.stop_radiation.clicked.connect(self.stopTask)
             self.dlg.sb.valueChanged.connect(self.setTimeRate)
 
         def updteRadiation():
@@ -286,7 +285,6 @@ class energy_plant_radiation_class:
         print(newTime)
         energy_plant_radiation_class.radiationRate = newTime
         energy_plant_radiation_class.publisher.setTimeRatePub(newTime)
-        print(energy_plant_radiation_class.radiationRate)
         energy_plant_radiation_class.popupMessage(self, "New time rate:", str(newTime), "info")
 
     def loadProject(self):
