@@ -12,6 +12,8 @@ import os.path
 import threading
 from shutil import copyfile
 from gi.repository import GObject
+import urllib.request
+
 NUMB_ENERGY_PLANT = 199
 
 class energy_plant_radiation_class:
@@ -177,16 +179,12 @@ class energy_plant_radiation_class:
             self.dlg.stop_radiation.clicked.connect(self.stopTask)
             self.dlg.sb.valueChanged.connect(self.setTimeRate)
 
-        # MARIO FUnction. TO DO: Insert code for create heatmap with values from mqtt subscriber
-        # (subscriber.getRadiationList() return a list that contain 199 values one for all energy plants in the map)
-        # the function updateRadiation is triggered each x seconds (depends on radiation rate)
-
         def updteRadiation():
             energy_plant_radiation_class.upddateRadiation = threading.Timer(energy_plant_radiation_class.radiationRate,
                                                                             schedule_update)
-            if energy_plant_radiation_class.subscriber.isEmpty():
-                print("Radiation Stream is stopped!")
-            else:
+
+            if not energy_plant_radiation_class.subscriber.isEmpty():
+
                 #Retrieve heatmap
                 layer = QgsProject.instance().mapLayersByName('radiation_heatmap copy_energy_plant')[0]
                 radiations= energy_plant_radiation_class.subscriber.getRadiationList()
@@ -197,6 +195,8 @@ class energy_plant_radiation_class:
                     layer.changeAttributeValue(feat.id(), 5, radiations[index])
                     index= index + 1
                 layer.commitChanges()
+
+
 
             energy_plant_radiation_class.upddateRadiation.start()
 
@@ -222,7 +222,6 @@ class energy_plant_radiation_class:
     def init_state(self):
         dirname = os.path.dirname(__file__)
         layer = QgsProject.instance().mapLayersByName('copy_energy_plant')[0]
-        print("feature count " + str(layer.featureCount()))
         if layer.featureCount() < NUMB_ENERGY_PLANT:
             filename = os.path.join(dirname, 'dataset/global_power_plant_database.csv')
             layer.startEditing()
@@ -251,18 +250,19 @@ class energy_plant_radiation_class:
 
     # run thread subscriber and publisher
     def run_pub_sub(self):
-        # create task for pub and Pub
-        if QgsApplication.taskManager().countActiveTasks() < 2:
-            QgsApplication.taskManager().addTask(energy_plant_radiation_class.publisher)
-            QgsApplication.taskManager().addTask(energy_plant_radiation_class.subscriber)
-            print("Pub and Sub started")
+        if energy_plant_radiation_class.checkConnection(self):
+            # create task for pub and Pub
+            if QgsApplication.taskManager().countActiveTasks() < 2:
+                QgsApplication.taskManager().addTask(energy_plant_radiation_class.publisher)
+                QgsApplication.taskManager().addTask(energy_plant_radiation_class.subscriber)
+                print("Pub and Sub started")
+            else:
+                print("already running")
         else:
-            print("already running")
-
+            print("Your device must be connected to a network")
     # stop thread subscriber and publisher
     def stopTask(self):
         if QgsApplication.taskManager().countActiveTasks() > 1:
-            print(QgsApplication.taskManager().countActiveTasks())
             energy_plant_radiation_class.publisher.stopPub(0)
             energy_plant_radiation_class.subscriber.stopSub(1)
             energy_plant_radiation_class.subscriber.flushRadiationList()
@@ -335,4 +335,12 @@ class energy_plant_radiation_class:
 
         self.iface.mapCanvas().refreshAllLayers()
 
+    def checkConnection(self):
+        try:
+            urllib.request.urlopen("http://google.com")
+            print("Network connection is running")
+            return True
+        except urllib.error.URLError as err:
+            print("Network connection is not running")
+            return False
 
