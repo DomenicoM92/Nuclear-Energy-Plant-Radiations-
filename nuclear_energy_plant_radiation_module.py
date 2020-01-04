@@ -6,14 +6,13 @@ import random
 from .mqttSubscriber import mqttSubscriber
 from .mqttPublisher import mqttPublisher
 from qgis._core import QgsPointXY, QgsFeature, QgsGeometry, QgsProject, Qgis, QgsApplication, QgsHeatmapRenderer, \
-    QgsGradientColorRamp, QgsRasterLayer, QgsVectorLayer
+    QgsStyle
 from .nuclear_energy_plant_radiation_module_dialog import energy_plant_radiation_classDialog
 import os.path
 import threading
 from shutil import copyfile
 from gi.repository import GObject
 NUMB_ENERGY_PLANT = 199
-
 
 class energy_plant_radiation_class:
     publisher = mqttPublisher()
@@ -303,13 +302,20 @@ class energy_plant_radiation_class:
         self.iface.addVectorLayer(copy_energy_plant, "", "ogr")
 
         layer = QgsProject.instance().mapLayersByName('radiation_heatmap copy_energy_plant')[0]
+        layer.setOpacity(0.5)
 
         renderer = QgsHeatmapRenderer()
         renderer.setRenderQuality(1)
+        renderer.setRadius(15)
         renderer.setWeightExpression("Radiation")
 
+        style = QgsStyle.defaultStyle()
+        defaultColorRampNames = style.colorRampNames()
+
+        ramp = style.colorRamp(defaultColorRampNames[8])
+
+        renderer.setColorRamp(ramp)
         layer.setRenderer(renderer)
-        layer.renderer()
 
         print("Project Loaded")
 
