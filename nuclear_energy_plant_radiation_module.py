@@ -1,5 +1,5 @@
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication
-from qgis.PyQt.QtGui import QIcon
+from qgis.PyQt.QtGui import QIcon, QColor
 from qgis.PyQt.QtWidgets import QAction
 import csv
 import random
@@ -315,14 +315,14 @@ class energy_plant_radiation_class:
 
         renderer = QgsHeatmapRenderer()
         renderer.setRenderQuality(1)
-        renderer.setRadius(15)
+        renderer.setRadius(20)
         renderer.setWeightExpression("Radiation")
 
         style = QgsStyle.defaultStyle()
         defaultColorRampNames = style.colorRampNames()
 
         ramp = style.colorRamp(defaultColorRampNames[8])
-
+        ramp.setColor1(QColor(0,0,4,0))
         renderer.setColorRamp(ramp)
         layer.setRenderer(renderer)
 
