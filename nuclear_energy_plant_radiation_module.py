@@ -12,6 +12,10 @@ import os.path
 import threading
 from shutil import copyfile
 from gi.repository import GObject
+import urllib.request
+import time
+from qgis.PyQt.QtWidgets import QProgressBar
+from qgis.PyQt.QtCore import *
 NUMB_ENERGY_PLANT = 199
 
 class energy_plant_radiation_class:
@@ -166,7 +170,6 @@ class energy_plant_radiation_class:
     def run(self):
         self.loadProject()
         self.init_state()
-
         """Run method that performs all the real work"""
         # Create the dialog with elements (after translation) and keep reference
         # Only create GUI ONCE in callback, so that it will only load when the plugin is started
@@ -174,19 +177,14 @@ class energy_plant_radiation_class:
             self.first_start = False
             self.dlg = energy_plant_radiation_classDialog()
             self.dlg.start_radiation.clicked.connect(self.run_pub_sub)
-            self.dlg.stop_radiation.clicked.connect(self.stopTask)
             self.dlg.sb.valueChanged.connect(self.setTimeRate)
-
-        # MARIO FUnction. TO DO: Insert code for create heatmap with values from mqtt subscriber
-        # (subscriber.getRadiationList() return a list that contain 199 values one for all energy plants in the map)
-        # the function updateRadiation is triggered each x seconds (depends on radiation rate)
 
         def updteRadiation():
             energy_plant_radiation_class.upddateRadiation = threading.Timer(energy_plant_radiation_class.radiationRate,
                                                                             schedule_update)
-            if energy_plant_radiation_class.subscriber.isEmpty():
-                print("Radiation Stream is stopped!")
-            else:
+
+            if not energy_plant_radiation_class.subscriber.isEmpty():
+
                 #Retrieve heatmap
                 layer = QgsProject.instance().mapLayersByName('radiation_heatmap copy_energy_plant')[0]
                 radiations= energy_plant_radiation_class.subscriber.getRadiationList()
@@ -198,6 +196,8 @@ class energy_plant_radiation_class:
                     index= index + 1
                 layer.commitChanges()
 
+
+
             energy_plant_radiation_class.upddateRadiation.start()
 
         def schedule_update():
@@ -206,6 +206,8 @@ class energy_plant_radiation_class:
         updteRadiation()
         layer = QgsProject.instance().mapLayersByName('radiation_heatmap copy_energy_plant')[0]
         layer.reload()
+        self.progressBar()
+
         # show the dialog
         self.dlg.show()
         # Run the dialog event loop
@@ -215,6 +217,7 @@ class energy_plant_radiation_class:
             energy_plant_radiation_class.upddateRadiation.cancel()
             self.stopTask()
             self.unloadProject()
+            self.iface.messageBar().clearWidgets()
             print("End Nuclear Energy Plant Plugin")
             pass
 
@@ -222,7 +225,6 @@ class energy_plant_radiation_class:
     def init_state(self):
         dirname = os.path.dirname(__file__)
         layer = QgsProject.instance().mapLayersByName('copy_energy_plant')[0]
-        print("feature count " + str(layer.featureCount()))
         if layer.featureCount() < NUMB_ENERGY_PLANT:
             filename = os.path.join(dirname, 'dataset/global_power_plant_database.csv')
             layer.startEditing()
@@ -246,37 +248,44 @@ class energy_plant_radiation_class:
                 layer.updateExtents()
                 layer.commitChanges()
                 layer.reload()
-        widget = self.iface.messageBar().createMessage("Insertion Energy Plants", "Done")
-        self.iface.messageBar().pushWidget(widget, Qgis.Info)
+        #widget = self.iface.messageBar().createMessage("Insertion Energy Plants", "Done")
+        #self.iface.messageBar().pushWidget(widget, Qgis.Success)
 
     # run thread subscriber and publisher
     def run_pub_sub(self):
-        # create task for pub and Pub
-        if QgsApplication.taskManager().countActiveTasks() < 2:
-            QgsApplication.taskManager().addTask(energy_plant_radiation_class.publisher)
-            QgsApplication.taskManager().addTask(energy_plant_radiation_class.subscriber)
-            print("Pub and Sub started")
-        else:
-            print("already running")
+        if energy_plant_radiation_class.checkConnection(self):
+            # create task for pub and Pub
+            if QgsApplication.taskManager().countActiveTasks() < 2:
+                QgsApplication.taskManager().addTask(energy_plant_radiation_class.publisher)
+                QgsApplication.taskManager().addTask(energy_plant_radiation_class.subscriber)
+                print("Pub and Sub started")
+                energy_plant_radiation_class.popupMessage(self,"Radiation Stream:","Is started","success")
+            else:
+                print("already running")
+                energy_plant_radiation_class.popupMessage(self,"Radiation Stream:","Already running","warning")
 
+        else:
+            print("Your device must be connected to a network")
     # stop thread subscriber and publisher
     def stopTask(self):
         if QgsApplication.taskManager().countActiveTasks() > 1:
-            print(QgsApplication.taskManager().countActiveTasks())
             energy_plant_radiation_class.publisher.stopPub(0)
             energy_plant_radiation_class.subscriber.stopSub(1)
             energy_plant_radiation_class.subscriber.flushRadiationList()
             energy_plant_radiation_class.publisher = mqttPublisher()
             energy_plant_radiation_class.subscriber = mqttSubscriber()
             print("Radiation stream stopped")
+            energy_plant_radiation_class.popupMessage(self, "Radiation Stream:", "Is stopped", "success")
+
         else:
             print("Radiation streaming not running")
+            energy_plant_radiation_class.popupMessage(self, "Radiation Stream:", "Is already stopped", "warning")
 
     def setTimeRate(self, newTime):
         print(newTime)
         energy_plant_radiation_class.radiationRate = newTime
         energy_plant_radiation_class.publisher.setTimeRatePub(newTime)
-        print(energy_plant_radiation_class.radiationRate)
+        energy_plant_radiation_class.popupMessage(self, "New time rate:", str(newTime), "info")
 
     def loadProject(self):
         # Get the project instance
@@ -318,8 +327,21 @@ class energy_plant_radiation_class:
         renderer.setColorRamp(ramp)
         layer.setRenderer(renderer)
 
-        print("Project Loaded")
+    def progressBar(self):
+        progressMessageBar = self.iface.messageBar().createMessage("Project setup...")
+        progress = QProgressBar()
+        progress.setMaximum(5)
+        progress.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        progressMessageBar.layout().addWidget(progress)
+        self.iface.messageBar().pushWidget(progressMessageBar, Qgis.Info)
 
+        for i in range(5):
+            time.sleep(1)
+            progress.setValue(i + 1)
+
+        self.iface.messageBar().clearWidgets()
+        energy_plant_radiation_class.popupMessage(self, "Project setup:", "Completed with success", "success")
+        print("Project Loaded")
     def unloadProject(self):
         QgsProject.instance().removeAllMapLayers()
         try:
@@ -336,4 +358,29 @@ class energy_plant_radiation_class:
 
         self.iface.mapCanvas().refreshAllLayers()
 
+    def checkConnection(self):
+        try:
+            urllib.request.urlopen("http://google.com")
+            print("Network connection is running")
+            energy_plant_radiation_class.popupMessage(self, "Network connection:", "Is Running", "success")
 
+            return True
+        except urllib.error.URLError as err:
+            print("Network connection is not running")
+            energy_plant_radiation_class.popupMessage(self, "Network connection:", "Is not Running", "critical")
+
+            return False
+
+    def popupMessage(self,title, body, level):
+        if level == "info":
+            self.iface.messageBar().pushMessage(title, body, level=Qgis.Info,
+                                       duration=3)
+        elif level == "warning":
+            self.iface.messageBar().pushMessage(title, body, level=Qgis.Warning,
+                                                duration=3)
+        elif level == "critical":
+            self.iface.messageBar().pushMessage(title, body, level=Qgis.Critical,
+                                                duration=3)
+        elif level == "success":
+            self.iface.messageBar().pushMessage(title, body, level=Qgis.Success,
+                                                duration=3)
