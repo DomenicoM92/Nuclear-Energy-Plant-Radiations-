@@ -207,7 +207,8 @@ class energy_plant_radiation_class:
         layer = QgsProject.instance().mapLayersByName('radiation_heatmap copy_energy_plant')[0]
         layer.reload()
         self.progressBar()
-
+        #set windows dialog to bottom center
+        self.dlg.setGeometry(850,850,376,163)
         # show the dialog
         self.dlg.show()
         # Run the dialog event loop
