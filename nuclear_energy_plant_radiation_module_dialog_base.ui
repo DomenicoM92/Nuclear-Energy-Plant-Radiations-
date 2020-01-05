@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>energy_plant_radiation</string>
+   <string>Nuclear Energy Plant</string>
   </property>
   <widget class="QDialogButtonBox" name="button_box">
    <property name="geometry">
