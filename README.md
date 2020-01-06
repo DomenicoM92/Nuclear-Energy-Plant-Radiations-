@@ -10,7 +10,8 @@ deployment for notes on how to deploy the project on a live system.
 
 
 ### Prerequisites
-First of all, you will need a machine running QGIS (it is available for Windows, Linux, MacOS. Android, FreeBSD ).
+
+First of all, you will need a machine running QGIS (it is available for Windows, Linux, MacOS. Android, FreeBSD ) and it must be allow multithreading.
 
 What things you need to install the software and how to install them
 
