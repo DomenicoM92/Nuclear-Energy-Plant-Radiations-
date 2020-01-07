@@ -1,5 +1,5 @@
-import paho.mqtt.client as mqtt
-
+#import paho.mqtt.client as mqtt
+from .paho.mqtt import client as mqtt
 from qgis._core import QgsTask
 
 

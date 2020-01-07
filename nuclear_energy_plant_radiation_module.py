@@ -182,7 +182,6 @@ class energy_plant_radiation_class:
         def updteRadiation():
             energy_plant_radiation_class.upddateRadiation = threading.Timer(energy_plant_radiation_class.radiationRate,
                                                                             schedule_update)
-
             if not energy_plant_radiation_class.subscriber.isEmpty():
 
                 #Retrieve heatmap
@@ -195,15 +194,14 @@ class energy_plant_radiation_class:
                     layer.changeAttributeValue(feat.id(), 5, radiations[index])
                     index= index + 1
                 layer.commitChanges()
-
-
-
             energy_plant_radiation_class.upddateRadiation.start()
 
         def schedule_update():
             GObject.idle_add(updteRadiation)
 
         updteRadiation()
+
+
         layer = QgsProject.instance().mapLayersByName('radiation_heatmap copy_energy_plant')[0]
         layer.reload()
         self.progressBar()

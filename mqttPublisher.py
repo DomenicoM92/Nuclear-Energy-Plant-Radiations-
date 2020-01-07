@@ -1,4 +1,5 @@
-import paho.mqtt.client as mqtt
+#import paho.mqtt.client as mqtt
+from .paho.mqtt import client as mqtt
 import time
 import random
 
