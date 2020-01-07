@@ -6,12 +6,12 @@
 name=Nuclear Energy Plants' Radiations 
 qgisMinimumVersion=3.0
 description=This project was developed on the course of the Geographic Information System (GIS) of the master's degree program in data science at the University of Salerno.
-version=1.1
+version=1.2
 author=Marino Domenico, Ruggiero Mario
 email=domenicomarino42@gmail.com, mario.ruggiero1995@gmail.com
 
 about=The goal of this project was develop a python plugin for the software Quantum GIS (QGIS) in order to visualize on the open street map all nuclear energy plant in the world. This plugin use the mqtt protocol for receive of radiation data from sensors in order to dinamically visualize it on the map. In order to clarify the visualization of the radiation data, a heat map was created and used.
-tracker=https://github.com/DomenicoM92/Nuclear-Energy-Plant-Radiations-.git
+tracker=https://github.com/DomenicoM92/Nuclear-Energy-Plant-Radiations-/issues/
 repository=https://github.com/DomenicoM92/Nuclear-Energy-Plant-Radiations-.git
 # End of mandatory metadata
 
