@@ -6,7 +6,7 @@
 name=Nuclear Energy Plants' Radiations 
 qgisMinimumVersion=3.0
 description=This project was developed on the course of the Geographic Information System (GIS) of the master's degree program in data science at the University of Salerno.
-version=1.0
+version=1.1
 author=Marino Domenico, Ruggiero Mario
 email=domenicomarino42@gmail.com, mario.ruggiero1995@gmail.com
 
