@@ -10,7 +10,7 @@ version=1.4
 author=Marino Domenico, Ruggiero Mario
 email=domenicomarino42@gmail.com, mario.ruggiero1995@gmail.com
 
-about=The goal of this project was develop a python plugin for the software Quantum GIS (QGIS) in order to visualize on the open street map all nuclear energy plant in the world. This plugin use the mqtt protocol for receive of radiation data from sensors in order to dinamically visualize it on the map. In order to clarify the visualization of the radiation data, a heat map was created and used.
+about=The goal of this project was develop a python plugin for the software Quantum GIS (QGIS) in order to visualize on the open street map all nuclear energy plant in the world. This plugin use the mqtt protocol for receive of radiation data from sensors in order to dinamically visualize it on the map. In order to clarify the visualization of the radiation data, a heat map was created and used. The plugin uses fake radiation, it simulates that the data comes from real sensors.
 tracker=https://github.com/DomenicoM92/Nuclear-Energy-Plant-Radiations-/issues/
 repository=https://github.com/DomenicoM92/Nuclear-Energy-Plant-Radiations-.git
 # End of mandatory metadata
