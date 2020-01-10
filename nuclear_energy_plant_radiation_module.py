@@ -1,4 +1,3 @@
-from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication
 from qgis.PyQt.QtGui import QIcon, QColor
 from qgis.PyQt.QtWidgets import QAction
 import csv
@@ -6,12 +5,11 @@ import random
 from .mqttSubscriber import mqttSubscriber
 from .mqttPublisher import mqttPublisher
 from qgis._core import QgsPointXY, QgsFeature, QgsGeometry, QgsProject, Qgis, QgsApplication, QgsHeatmapRenderer, \
-    QgsStyle
+    QgsStyle, QgsTask
 from .nuclear_energy_plant_radiation_module_dialog import energy_plant_radiation_classDialog
 import os.path
 import threading
 from shutil import copyfile
-from gi.repository import GObject
 import urllib.request
 import time
 from qgis.PyQt.QtWidgets import QProgressBar
@@ -22,7 +20,8 @@ class energy_plant_radiation_class:
     publisher = mqttPublisher()
     subscriber = mqttSubscriber()
     upddateRadiation = None
-    radiationRate = 1
+    radiationRate = 5
+    activator = 1
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
@@ -179,34 +178,22 @@ class energy_plant_radiation_class:
             self.dlg.start_radiation.clicked.connect(self.run_pub_sub)
             self.dlg.sb.valueChanged.connect(self.setTimeRate)
 
-        def updteRadiation():
-            energy_plant_radiation_class.upddateRadiation = threading.Timer(energy_plant_radiation_class.radiationRate,
-                                                                            schedule_update)
-            if not energy_plant_radiation_class.subscriber.isEmpty():
-
-                #Retrieve heatmap
-                layer = QgsProject.instance().mapLayersByName('radiation_heatmap copy_energy_plant')[0]
-                radiations= energy_plant_radiation_class.subscriber.getRadiationList()
-                layer.startEditing()
-                index=0
-                it = layer.getFeatures()
-                for feat in it:
-                    layer.changeAttributeValue(feat.id(), 5, radiations[index])
-                    index= index + 1
-                layer.commitChanges()
-            energy_plant_radiation_class.upddateRadiation.start()
-
-        def schedule_update():
-            GObject.idle_add(updteRadiation)
-
-        updteRadiation()
-
-
-        layer = QgsProject.instance().mapLayersByName('radiation_heatmap copy_energy_plant')[0]
-        layer.reload()
         self.progressBar()
         #set windows dialog to bottom center
         self.dlg.setGeometry(850,850,376,163)
+
+        def runUpdte():
+            energy_plant_radiation_class.upddateRadiation = threading.Timer(energy_plant_radiation_class.radiationRate,
+                                                                            runUpdte)
+            if energy_plant_radiation_class.activator:
+                task1 = QgsTask.fromFunction('updateRadiation', energy_plant_radiation_class.updteRadiation,
+                                             on_finished=self.finished,
+                                             wait_time=energy_plant_radiation_class.radiationRate)
+                QgsApplication.taskManager().addTask(task1)
+                energy_plant_radiation_class.activator = 0
+            energy_plant_radiation_class.upddateRadiation.start()
+
+        runUpdte()
         # show the dialog
         self.dlg.show()
         # Run the dialog event loop
@@ -220,7 +207,24 @@ class energy_plant_radiation_class:
             print("End Nuclear Energy Plant Plugin")
             pass
 
-    # read from dataset and finally fill attribute table
+    def updteRadiation(QgsTask):
+        #print("Delegate GUI for layer update...")
+        return True
+
+    def finished(self, result):
+        #print("GUI Control")
+        if not energy_plant_radiation_class.subscriber.isEmpty():
+             # Retrieve heatmap
+             layer = QgsProject.instance().mapLayersByName('radiation_heatmap copy_energy_plant')[0]
+             radiations = energy_plant_radiation_class.subscriber.getRadiationList()
+             layer.startEditing()
+             index = 0
+             it = layer.getFeatures()
+             for feat in it:
+                 layer.changeAttributeValue(feat.id(), 5, radiations[index])
+                 index = index + 1
+             layer.commitChanges()
+        energy_plant_radiation_class.activator = 1
     def init_state(self):
         dirname = os.path.dirname(__file__)
         layer = QgsProject.instance().mapLayersByName('copy_energy_plant')[0]
@@ -247,8 +251,6 @@ class energy_plant_radiation_class:
                 layer.updateExtents()
                 layer.commitChanges()
                 layer.reload()
-        #widget = self.iface.messageBar().createMessage("Insertion Energy Plants", "Done")
-        #self.iface.messageBar().pushWidget(widget, Qgis.Success)
 
     # run thread subscriber and publisher
     def run_pub_sub(self):
@@ -265,6 +267,7 @@ class energy_plant_radiation_class:
 
         else:
             print("Your device must be connected to a network")
+
     # stop thread subscriber and publisher
     def stopTask(self):
         if QgsApplication.taskManager().countActiveTasks() > 1:
@@ -340,6 +343,7 @@ class energy_plant_radiation_class:
         self.iface.messageBar().clearWidgets()
         energy_plant_radiation_class.popupMessage(self, "Project setup:", "Completed with success", "success")
         print("Project Loaded")
+
     def unloadProject(self):
         QgsProject.instance().removeAllMapLayers()
         try:

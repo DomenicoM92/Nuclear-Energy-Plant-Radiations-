@@ -1,4 +1,3 @@
-#import paho.mqtt.client as mqtt
 from .paho.mqtt import client as mqtt
 import time
 import random
@@ -8,7 +7,7 @@ from qgis._core import QgsTask
 
 class mqttPublisher(QgsTask):
     activator = 1
-    timeRate = 1
+    timeRate = 5
 
     def __init__(self):
         QgsTask.__init__(self)

@@ -1,7 +1,5 @@
-#import paho.mqtt.client as mqtt
 from .paho.mqtt import client as mqtt
 from qgis._core import QgsTask
-
 
 def on_connect(client, userdata, flags, rc):
     print("Connected With Result Code " + rc)
@@ -11,7 +9,6 @@ def on_message(client, userdata, message):
     result = message.payload.decode()
     result = result.split(',')
     mqttSubscriber.radiation = list(map(float,result))
-
 def on_subscribe(client, obj, mid, granted_qos):
     client.subscribe("radiation - topic0", qos=0)
 
