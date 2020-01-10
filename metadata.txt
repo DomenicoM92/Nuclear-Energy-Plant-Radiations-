@@ -27,7 +27,7 @@ homepage=https://github.com/DomenicoM92/Nuclear-Energy-Plant-Radiations-.git
 category=Plugins
 icon=icon.png
 # experimental flag
-experimental=True
+experimental=False
 
 # deprecated flag (applies to the whole plugin, not just a single version)
 deprecated=False
