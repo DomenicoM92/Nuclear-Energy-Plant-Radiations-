@@ -7,7 +7,7 @@ from qgis._core import QgsTask
 
 class mqttPublisher(QgsTask):
     activator = 1
-    timeRate = 5
+    timeRate = 2
 
     def __init__(self):
         QgsTask.__init__(self)
@@ -37,12 +37,17 @@ class mqttPublisher(QgsTask):
                 i += 1
             client.publish(topic="radiation - topic0", payload=messagge, qos=0, retain=False)
             time.sleep(self.timeRate)
+        return True
 
+    def finished(self, result):
         print("End Publisher")
+
+    def cancel(self):
+        super().cancel()
 
     def stopPub(self, act):
         self.activator = act
 
     def setTimeRatePub(self, newTime):
         self.timeRate = newTime
-        print("New Publisher time rate:" + str(newTime))
+        #print("New Publisher time rate:" + str(newTime))

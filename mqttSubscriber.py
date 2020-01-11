@@ -37,7 +37,14 @@ class mqttSubscriber(QgsTask):
         # Continue the network loop, exit when an error occurs
         while self.rc == 0:
             rc = client.loop()
+
+        return True
+
+    def finished(self, result):
         print("End Subscriber")
+
+    def cancel(self):
+        super().cancel()
 
     def stopSub(self, stop):
         self.rc = stop
