@@ -1,4 +1,5 @@
 import qgis
+import platform
 from qgis._core import QgsTask, QgsProject, QgsHeatmapRenderer, QgsStyle
 from qgis.PyQt.QtGui import QColor
 from .mqttSubscriber import mqttSubscriber
@@ -8,11 +9,13 @@ class guiUpdater(QgsTask):
     MAX_AREA = 96116.84105212608
     MAX_RADIATION_VALUE = 200
     initilRadius = MAX_RADIATION_VALUE / (4 * math.pi)
+    OS = platform.system()
 
     def __init__(self):
         QgsTask.__init__(self)
 
     def run(self):
+        print(self.OS)
         return True
 
     def finished(self, result):
@@ -24,7 +27,8 @@ class guiUpdater(QgsTask):
              index = 0
              it = layer.getFeatures()
              for feat in it:
-                 layer.changeAttributeValue(feat.id(), 5, radiations[index])
+                 if index <= 199:
+                    layer.changeAttributeValue(feat.id(), 5, radiations[index])
                  index = index + 1
              layer.commitChanges()
 
@@ -61,7 +65,10 @@ class guiUpdater(QgsTask):
 
         renderer.setRadius(int(newScale * self.MAX_RADIATION_VALUE / (4 * math.pi)))
         renderer.setWeightExpression("Radiation")
-        renderer.setRenderQuality(1)
+        if self.OS == "Windows" or self.OS == "Darwin":
+            renderer.setRenderQuality(4)
+        else:
+            renderer.setRenderQuality(1)
         style = QgsStyle.defaultStyle()
         defaultColorRampNames = style.colorRampNames()
 
