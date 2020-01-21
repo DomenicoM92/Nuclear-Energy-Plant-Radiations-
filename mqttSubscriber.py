@@ -9,6 +9,7 @@ def on_message(client, userdata, message):
     result = message.payload.decode()
     result = result.split(',')
     mqttSubscriber.radiation = list(map(float,result))
+
 def on_subscribe(client, obj, mid, granted_qos):
     client.subscribe("radiation - topic0", qos=0)
 
