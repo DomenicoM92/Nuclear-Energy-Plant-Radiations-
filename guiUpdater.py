@@ -29,6 +29,8 @@ class guiUpdater(QgsTask):
              for feat in it:
                  if index <= 199:
                     layer.changeAttributeValue(feat.id(), 5, radiations[index])
+                 else:
+                     break
                  index = index + 1
              layer.commitChanges()
 
